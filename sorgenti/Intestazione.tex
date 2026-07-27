@@ -1,0 +1,29 @@
+% Header: con foto (\phototrue) o solo testo (\photofalse).
+% Il flag e' definito in "sorgenti/Preambolo.tex" e impostato dal file principale.
+\ifphoto
+
+\begin{multicols}{2}
+    \hspace{1.5cm}
+    \includegraphics[width=3cm]{fede.jpg}
+    \columnbreak
+    \begin{center}
+          {\LARGE \textbf{}}\\
+          \vspace{5pt}
+          {\LARGE \textbf{Federico Bena}}\\
+          \vspace{2pt}
+          {Turin, Italy} \\
+          {\href{mailto:federico.bena98@gmail.com}{federico.bena98@gmail.com}}\\
+          {\href{https://linkedin.com/in/federico-bena-62a8a633a}{LinkedIn} \textbar~\href{https://github.com/FedericoBena}{GitHub}}
+    \end{center}
+\end{multicols}
+
+\else
+
+\begin{center}
+  {\LARGE \textbf{Federico Bena}}\\
+  \vspace{2pt}
+  {Turin, Italy \textbar~\href{mailto:federico.bena98@gmail.com}{federico.bena98@gmail.com}}\\
+  {\href{https://linkedin.com/in/federico-bena-62a8a633a}{LinkedIn} \textbar~\href{https://github.com/FedericoBena}{GitHub}}
+\end{center}
+
+\fi

@@ -1,0 +1,59 @@
+% we use article class because we want to fully customize the page and dont use a cv template
+\documentclass[10pt,A4]{article}   
+
+% we use utf8 since we want to build from any machine
+\usepackage[utf8]{inputenc}       
+
+% provides \isempty test
+\usepackage{xifthen}
+
+% photo in the header: set with \phototrue / \photofalse in the main file
+\newif\ifphoto
+\photofalse
+
+% choose a sans font
+\usepackage[default]{raleway}
+\renewcommand*\familydefault{\sfdefault}   
+\usepackage[T1]{fontenc}
+
+% Page layout
+\usepackage[a4paper]{geometry}		
+\usepackage{multicol}
+\setlength{\parindent}{0pt}
+\geometry{top=1.5cm, bottom=0.6cm, left=1.5cm, right=1.5cm} 
+
+
+% Graphics and colors
+\usepackage{graphicx}
+% i sorgenti (foto compresa) stanno in sorgenti/: cosi' \includegraphics{fede.jpg}
+% la trova senza scrivere il percorso in Intestazione.tex
+\graphicspath{{sorgenti/}}
+\usepackage{wrapfig, float}
+\usepackage{tikz}
+\usetikzlibrary{shapes, backgrounds, trees}
+\usepackage[colorlinks=true, linkcolor=blue, urlcolor=blue]{hyperref}
+\usepackage{color}
+\definecolor{sectcol}{RGB}{0,150,255}
+\definecolor{softcol}{RGB}{225,225,225}
+
+% arrow shapes
+\newcommand{\tzlarrow}{(0,0) -- (0.2,0) -- (0.3,0.2) -- (0.2,0.4) -- (0,0.4) -- (0.1,0.2) -- cycle;}
+\newcommand{\larrow}[1]{\begin{tikzpicture}[scale=0.58]
+  \filldraw[fill=#1!100,draw=#1!100!black] \tzlarrow
+\end{tikzpicture}}
+
+% section title
+\newcommand{\cvsection}[1]{%
+  \vspace{6pt}\textbf{\large\textcolor{sectcol}{#1}}\\[-4pt]
+  \textcolor{softcol}{\rule{\linewidth}{1pt}}\vspace{4pt}
+}
+
+% event entry
+\newcommand{\cvevent}[4]{%
+  \vspace{4pt}\noindent
+  \textbf{#2} \hfill \textcolor{sectcol}{#1}\\
+  {\small #3}
+  \begin{itemize}\itemsep0pt
+    #4
+  \end{itemize}
+}

@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/check-uncommitted.sh\"",
+            "timeout": 15,
+            "statusMessage": "Controllo modifiche non committate..."
+          }
+        ]
+      }
+    ]
+  }
+}
