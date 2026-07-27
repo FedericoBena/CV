@@ -61,7 +61,8 @@ REGOLE OPERATIVE
 - Aggiorna `CV_contenuti.md`: il testo nuovo come ATTUALE, quello che togliamo
   come ARCHIVIO (con data e motivo). Niente si butta via.
 - Non committare e non pushare senza che te lo chieda io.
-- Il CV contiene dati personali: non pubblicarlo da nessuna parte.
+- Il repo è pubblico: email e foto sono condivise di proposito, ma non aggiungere
+  altri dati sensibili (il telefono è stato tolto, non rimetterlo).
 
 Parti dal punto 1: fammi l'inventario.
 

@@ -1,8 +1,10 @@
 # CV di Federico Bena
 
-Sorgenti LaTeX del CV. Il repo è **privato**: i file contengono dati personali
-(telefono, email, foto). La spiegazione completa — struttura, build, verifica, il
-perché dei `.docx` — sta in `README.md`: **leggilo prima di toccare qualcosa.**
+Sorgenti LaTeX del CV. Il repo è **pubblico**: contiene email e foto, condivise di
+proposito (il CV va su LinkedIn e ai recruiter). Il **numero di telefono è stato
+tolto** e non va rimesso — chi vuole i contatti scrive una mail. La spiegazione
+completa — struttura, build, verifica, il perché dei `.docx` — sta in `README.md`:
+**leggilo prima di toccare qualcosa.**
 Qui sotto stanno solo le regole operative da rispettare quando ci lavori.
 
 ## Struttura in breve
@@ -56,8 +58,10 @@ su disco, sincronizzati da Drive.
    come `ATTUALE`, quello tolto come `ARCHIVIO`, con data e motivo). È l'unica deroga
    sorvegliata al divieto di duplicazione: se diverge dal `.tex`, ha ragione il
    `.tex`. Un magazzino che mente è peggio che non averlo.
-5. **Non pubblicare mai questi file all'esterno** (repo pubblici, gist, pastebin,
-   artifact, servizi di terzi): contengono telefono, email e foto.
+5. **Il repo è pubblico, ma non è una scusa per aggiungere dati sensibili nuovi.**
+   Email e foto sono condivise di proposito; il numero di telefono no (è stato
+   tolto, non rimetterlo). Niente documenti di terzi (moduli, elaborati): li blocca
+   già `.git/info/exclude`.
 
 I `.docx` e i PDF sono **prodotti derivati**: si rigenerano, non si modificano (una
 correzione fatta in Word sparisce alla build successiva) e non si versionano (vedi

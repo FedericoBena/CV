@@ -1,8 +1,9 @@
 # CV di Federico Bena
 
 Sorgenti LaTeX del CV, in due varianti (con e senza foto) che condividono **gli
-stessi identici contenuti**. Repo **privato**: contiene numero di telefono, email
-e foto. Non pubblicarlo, non copiarne pezzi su gist, pastebin o servizi online.
+stessi identici contenuti**. Repo **pubblico**: contiene email e foto, condivise
+di proposito. Il numero di telefono è stato tolto — chi vuole i contatti scrive
+una mail.
 
 ## Come è fatto
 
@@ -170,7 +171,8 @@ In **root**:
    serve una variante, si usa un flag (`\newif`, come `\ifphoto`), mai un secondo
    file con lo stesso contenuto. L'unica deroga è `CV_contenuti.md`, ed è
    sorvegliata: va riallineato a ogni modifica dei sorgenti.
-2. **Niente dati personali fuori da qui.** Il CV contiene telefono, email e foto.
+2. **Il repo è pubblico: non aggiungere dati sensibili nuovi.** Email e foto sono
+   condivise di proposito; il numero di telefono è stato tolto, non rimetterlo.
 3. **Documenti di terzi non si committano** (moduli aziendali, elaborati, roba
    consegnata a clienti). Le regole ignore in `.git/info/exclude` bloccano già ogni
    `*.pdf` e `*.docx`. Quello che vale la pena tenere si riassume in
