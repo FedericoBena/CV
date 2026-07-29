@@ -39,7 +39,10 @@ sorgenti/     il contenuto condiviso, in una sola copia:
   Lingue.tex         Languages
   fede.jpg           la foto
 
-strumenti/    build.ps1, tex2docx.py   (li lanci, non li apri)
+dati/         profilo.json        il database personale (NON versionato)
+              profilo.schema.json le regole che deve rispettare
+
+strumenti/    build.ps1, tex2docx.py, valida.py   (li lanci, non li apri)
 note/         CV_contenuti.md, prompt-aggiorna-cv.md
 ```
 
@@ -111,6 +114,56 @@ fatta nel `.tex`) e **non si versionano**: le regole ignore stanno in
 `*.pdf` e `*.docx`. Restano comunque sul disco, sincronizzati da Google Drive,
 sempre pronti da spedire — semplicemente non stanno nella storia git.
 
+## Il database personale
+
+`dati/profilo.json` è il posto da cui esce il materiale per il CV, per LinkedIn e
+per i moduli dei recruiter. Non è un sorgente del CV e **non genera niente**: i
+`.tex` restano scritti a mano, perché il CV si adatta a ogni offerta. È una
+miniera, non un motore.
+
+È fatto di cinque sezioni. `profilo`, `link`, `sommario` e `lingue` sono
+definizioni fisse; `voci` è **una sola lista** di tutto quello che hai fatto, dove
+la categoria è un campo e non una sezione:
+
+```json
+{ "id": "sensor-reply-tesi", "categoria": "lavoro",  "titolo": "Thesis Intern",   … }
+{ "id": "polito-magistrale", "categoria": "scuola",  "titolo": "Laurea Magistrale…", … }
+```
+
+Stessa identica forma. Aggiungere domani lo sport o il volontariato costa **una
+parola** nel vocabolario delle categorie, non una sezione nuova da progettare.
+
+Le competenze stanno in un registro a parte e le voci le richiamano per `id`
+(`"competenze_usate": ["simulink", "stateflow"]`): il livello di una competenza è
+scritto in un punto solo. Stesso meccanismo per i rimandi fra voci — la tesi che
+punta all'azienda dove è stata svolta — e per i progetti, che portano il codice
+dell'esame da cui nascono.
+
+**Non è versionato**, ed è l'unico file di contenuto in questa condizione:
+contiene codice fiscale, telefono, voti, date esatte e nomi di terzi, che non
+vanno nella storia di un repo pubblico. La regola sta in `.git/info/exclude`
+accanto a quelle dei PDF. Lo schema invece **si versiona**: contiene regole, non
+dati, e senza di lui il file non si può più controllare.
+
+### Come si controlla
+
+```
+python strumenti/valida.py
+```
+
+Due livelli, perché guardano cose diverse. Lo **schema** guarda la forma: campi
+obbligatori presenti, nessun campo inventato, categorie ed elenchi chiusi, date
+`gg/mm/aaaa`, e la coerenza fra `in_corso` e `fine`. Dichiarato in testa al file,
+VS Code lo applica **mentre scrivi**, sottolineando in rosso l'errore.
+
+Lo **script** guarda la coerenza, che lo schema non può vedere: che la data esista
+davvero (`31/02` no), che la fine non preceda l'inizio, che gli `id` siano unici,
+che ogni competenza citata esista nel registro e che ogni rimando punti a qualcosa.
+Esce con codice diverso da zero se trova un errore.
+
+Serve `jsonschema` (`pip install jsonschema`). Il file dei dati si può passare come
+argomento, per provare una copia sbagliata apposta senza toccare quella vera.
+
 ## Come si verifica
 
 **Compilare senza errori non è una verifica.** Su un documento che spedisci, un
@@ -144,12 +197,11 @@ in una sessione di Claude Code per rifare un giro di aggiornamento del CV.
 
 In **`note/`**:
 
-- **`note/CV_contenuti.md`** — il magazzino. Tiene quello che è nel CV (`ATTUALE`),
-  quello che è stato tagliato (`ARCHIVIO`, con data e motivo), il materiale
-  disponibile non ancora usato, e una **scheda dati** (voti, date, titoli di tesi,
-  relatori, trigramma) che il CV non contiene ma che ogni form aziendale chiede.
-  Non è un sorgente e non è la fonte della verità: se contraddice un `.tex`, ha
-  ragione il `.tex`.
+- **`note/CV_contenuti.md`** — il vecchio magazzino, **in via di sostituzione** da
+  parte di `dati/profilo.json`. Tiene ancora la parte non migrata: triennale,
+  diploma e i lavori prima di Sensor Reply. Quando anche quelli saranno nel
+  database, si archivia. Non è un sorgente e non è la fonte della verità: se
+  contraddice un `.tex`, ha ragione il `.tex`.
 - **`note/prompt-aggiorna-cv.md`** — il prompt operativo per aggiornare il CV con
   Claude Code, più le misure di spazio.
 
@@ -158,6 +210,8 @@ In **`strumenti/`**:
 - **`strumenti/build.ps1`** — lo script di rigenerazione: PDF, pulizia, DOCX, verifica.
 - **`strumenti/tex2docx.py`** — il generatore dei DOCX: legge i `.tex` e ricostruisce
   il CV in Word. Lo chiama `build.ps1`, non serve lanciarlo a mano.
+- **`strumenti/valida.py`** — il controllo del database. Non c'entra con il CV e
+  non lo chiama `build.ps1`: si lancia quando hai toccato `dati/profilo.json`.
 
 In **root**:
 
@@ -172,7 +226,10 @@ In **root**:
    file con lo stesso contenuto. L'unica deroga è `CV_contenuti.md`, ed è
    sorvegliata: va riallineato a ogni modifica dei sorgenti.
 2. **Il repo è pubblico: non aggiungere dati sensibili nuovi.** Email e foto sono
-   condivise di proposito; il numero di telefono è stato tolto, non rimetterlo.
+   condivise di proposito; il numero di telefono è stato tolto dal CV e non va
+   rimesso. I dati personali veri (telefono, codice fiscale, voti, nomi di terzi)
+   stanno solo in `dati/profilo.json`, che è escluso da git apposta: quella è la
+   riga di confine, e non si sposta.
 3. **Documenti di terzi non si committano** (moduli aziendali, elaborati, roba
    consegnata a clienti). Le regole ignore in `.git/info/exclude` bloccano già ogni
    `*.pdf` e `*.docx`. Quello che vale la pena tenere si riassume in

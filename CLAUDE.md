@@ -26,15 +26,19 @@ nome del PDF.
   entrambe le versioni, sceglie con `\ifphoto`), le sezioni (`sorgenti/Profilo.tex`,
   `Lavoro`, `Educazione`, `Competenze`, `Lingue`) e la foto (`sorgenti/fede.jpg`).
   I due main la includono con `\input{sorgenti/...}`.
-- **`strumenti/`** — `build.ps1` e `tex2docx.py`: li lanci, non li apri.
-- **`note/`** — `CV_contenuti.md` (il **magazzino dei contenuti**: quello che è nel
-  CV, quello tagliato con data e motivo, il materiale non ancora usato) e
-  `prompt-aggiorna-cv.md`. `CV_contenuti.md` non è un sorgente e **non è la fonte
-  della verità**: quella sono i `.tex`.
+- **`dati/`** — `profilo.json`, il **database personale** da cui esce il materiale
+  per CV, LinkedIn e moduli, con accanto `profilo.schema.json` che ne detta la
+  forma. Non genera niente: i `.tex` si scrivono a mano. Com'è fatto sta in
+  `README.md`.
+- **`strumenti/`** — `build.ps1`, `tex2docx.py` e `valida.py`: li lanci, non li apri.
+- **`note/`** — `CV_contenuti.md`, il vecchio magazzino **in via di sostituzione**
+  da parte di `dati/profilo.json`: tiene ancora la parte non migrata (triennale,
+  diploma, i lavori prima di Sensor Reply). Più `prompt-aggiorna-cv.md`. Non è un
+  sorgente e **non è la fonte della verità**: quella sono i `.tex`.
 
-I PDF e i DOCX in root **non sono versionati**: le regole ignore stanno in
-`.git/info/exclude` (non in un `.gitignore`, per tenere la root pulita) e restano
-su disco, sincronizzati da Drive.
+I PDF e i DOCX in root **non sono versionati**, e nemmeno `dati/profilo.json`: le
+regole ignore stanno in `.git/info/exclude` (non in un `.gitignore`, per tenere la
+root pulita) e i file restano su disco, sincronizzati da Drive.
 
 ## Regole che non si violano
 
@@ -54,14 +58,28 @@ su disco, sincronizzati da Drive.
    Confronta il testo del PDF prima e dopo (`pdftotext -layout`): l'unica differenza
    deve essere quella voluta. "Compila senza errori" non è una verifica — su un CV
    che si spedisce, un blocco che sparisce in silenzio è peggio di un errore.
-4. **Dopo ogni modifica ai sorgenti, riallinea `note/CV_contenuti.md`** (testo nuovo
-   come `ATTUALE`, quello tolto come `ARCHIVIO`, con data e motivo). È l'unica deroga
+4. **Dopo ogni modifica ai sorgenti, riallinea il magazzino.** Il testo nuovo va in
+   `dati/profilo.json`, nei `testi` della voce che lo riguarda, con `usato_in` che
+   dice dove è finito; quello tolto **resta**, con la nota che spiega perché e
+   quando riprenderlo. Per le parti non ancora migrate (triennale, diploma, lavori
+   prima di Sensor Reply) vale ancora `note/CV_contenuti.md`. È l'unica deroga
    sorvegliata al divieto di duplicazione: se diverge dal `.tex`, ha ragione il
    `.tex`. Un magazzino che mente è peggio che non averlo.
-5. **Il repo è pubblico, ma non è una scusa per aggiungere dati sensibili nuovi.**
-   Email e foto sono condivise di proposito; il numero di telefono no (è stato
-   tolto, non rimetterlo). Niente documenti di terzi (moduli, elaborati): li blocca
-   già `.git/info/exclude`.
+5. **Dopo ogni modifica al database, lancia il controllo.**
+   ```
+   python strumenti/valida.py
+   ```
+   Deve uscire senza errori. Non serve dopo le modifiche ai `.tex`: il database non
+   entra nella build del CV.
+6. **`dati/profilo.json` non si committa mai.** Contiene telefono, codice fiscale,
+   voti, date esatte e nomi di terzi. La regola in `.git/info/exclude` lo blocca, ma
+   controlla comunque `git status` prima di un commit: quella è la riga di confine
+   fra quello che è pubblico e quello che non lo è, e non si sposta. Lo **schema**
+   accanto invece si versiona: sono regole, non dati.
+7. **Il repo è pubblico, ma non è una scusa per aggiungere dati sensibili nuovi.**
+   Email e foto sono condivise di proposito; il numero di telefono non va nel CV (è
+   stato tolto, non rimetterlo — nel database sì, quello è fuori da git). Niente
+   documenti di terzi (moduli, elaborati): li blocca già `.git/info/exclude`.
 
 I `.docx` e i PDF sono **prodotti derivati**: si rigenerano, non si modificano (una
 correzione fatta in Word sparisce alla build successiva) e non si versionano (vedi
