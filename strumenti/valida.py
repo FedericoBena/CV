@@ -157,6 +157,8 @@ def traduci(errore):
         return f"tipo di dato sbagliato (atteso {errore.validator_value})"
     if tipo == "minLength":
         return "il campo non puo' essere vuoto"
+    if tipo == "minimum":
+        return f"il valore {errore.instance} e' minore del minimo ammesso ({errore.validator_value})"
     if tipo == "uniqueItems":
         return "ci sono elementi ripetuti nell'elenco"
     return errore.message
@@ -202,6 +204,33 @@ def controlla_date(dati, errori):
             errori.append(f'{etichetta}: l\'inizio ({voce["inizio"]}) e\' nel futuro')
         if fine and fine > oggi:
             errori.append(f'{etichetta}: la fine ({voce["fine"]}) e\' nel futuro')
+
+
+def controlla_preferenze(dati, errori, avvisi):
+    """Cosa cerchi adesso: e' l'unica sezione che scade da sola."""
+    preferenze = dati.get("preferenze")
+    if not isinstance(preferenze, dict):
+        return
+
+    aggiornato = preferenze.get("aggiornato_il")
+    quando = a_data(aggiornato) if aggiornato else None
+    if aggiornato and quando is None:
+        errori.append(f'preferenze -> aggiornato_il: la data "{aggiornato}" non esiste')
+        return
+
+    if quando is None:
+        return
+    if quando > date.today():
+        errori.append(f"preferenze -> aggiornato_il: la data ({aggiornato}) e' nel futuro")
+        return
+
+    # Sei mesi: oltre, RAL e preavviso vanno riletti prima di dirli a qualcuno.
+    giorni = (date.today() - quando).days
+    if giorni > 182:
+        avvisi.append(
+            f"preferenze: aggiornate l'ultima volta il {aggiornato} "
+            f"({giorni} giorni fa). Rileggi RAL e preavviso prima di usarle."
+        )
 
 
 def controlla_identificatori(dati, errori):
@@ -293,6 +322,7 @@ def main():
     errori, avvisi = [], []
     controlla_schema(dati, schema, errori)
     controlla_date(dati, errori)
+    controlla_preferenze(dati, errori, avvisi)
     controlla_identificatori(dati, errori)
     controlla_competenze(dati, errori, avvisi)
     controlla_rimandi(dati, errori)

@@ -6,7 +6,7 @@
 
   "type": "object",
   "additionalProperties": false,
-  "required": ["profilo", "link", "sommario", "lingue", "voci", "registro_competenze"],
+  "required": ["profilo", "link", "sommario", "lingue", "preferenze", "voci", "registro_competenze"],
 
   "properties": {
     "$schema": {
@@ -160,6 +160,76 @@
       }
     },
 
+    "preferenze": {
+      "type": "object",
+      "description": "Cosa cerchi adesso: le domande che ogni recruiter fa alla prima telefonata. Non sta sulla linea del tempo come le voci, ma a differenza di profilo invecchia: per questo ha una data di aggiornamento.",
+      "additionalProperties": false,
+      "required": [
+        "aggiornato_il", "ruoli_cercati", "settori", "contratto", "modalita",
+        "sedi", "trasferimento", "trasferte", "ral_attuale", "ral_attesa",
+        "preavviso_giorni", "note"
+      ],
+      "properties": {
+        "aggiornato_il": {
+          "$ref": "#/$defs/data",
+          "description": "Quando hai rivisto questa sezione. RAL e preavviso invecchiano in fretta, e un numero vecchio detto a un recruiter e' peggio di un numero assente: valida.py avvisa quando passano sei mesi."
+        },
+        "ruoli_cercati": {
+          "type": "array",
+          "description": "I titoli con cui cercheresti l'offerta, non le mansioni.",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "settori": {
+          "type": "array",
+          "description": "In ordine di preferenza: il primo e' quello che dici per primo al telefono.",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "contratto": {
+          "type": "array",
+          "description": "I rapporti che accetteresti. Lista vuota se non e' un criterio.",
+          "items": { "$ref": "#/$defs/contratto" }
+        },
+        "modalita": {
+          "type": "array",
+          "description": "In presenza, da remoto, ibrido: quelle che accetteresti.",
+          "items": { "$ref": "#/$defs/modalita" }
+        },
+        "sedi": {
+          "type": "array",
+          "description": "Citta' o zone dove lavoreresti senza trasferirti.",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "trasferimento": {
+          "enum": ["no", "valuto", "si"],
+          "description": "Se cambieresti citta' per il lavoro giusto."
+        },
+        "trasferte": {
+          "enum": ["no", "occasionali", "frequenti"],
+          "description": "Quanto viaggeresti. Diverso dal trasferimento: qui torni a casa."
+        },
+        "ral_attuale": {
+          "type": ["integer", "null"],
+          "minimum": 0,
+          "description": "Lordo annuo di oggi, in euro. null se non stai lavorando: un tirocinio non e' una RAL.",
+          "$comment": "Il dato piu' sensibile del file. Uno dei motivi per cui profilo.json non entra in un repo pubblico."
+        },
+        "ral_attesa": {
+          "type": ["integer", "null"],
+          "minimum": 0,
+          "description": "Lordo annuo che chiedi, in euro. Un numero solo e non un intervallo: dichiarare un massimo e' dire al recruiter il tetto, e ti offrira' quello. null se preferisci non anticiparlo."
+        },
+        "preavviso_giorni": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Giorni che devi ancora lavorare dopo le dimissioni prima di poter iniziare altrove: non lo scegli tu, lo fissa il CCNL su livello e anzianita'. 0 se sei libero subito."
+        },
+        "note": {
+          "type": ["string", "null"],
+          "description": "Quello che non entra nei campi: un vincolo familiare, un'azienda da evitare, una condizione. null se non serve."
+        }
+      }
+    },
+
     "voci": {
       "type": "array",
       "description": "Tutto quello che hai fatto. Un lavoro, una laurea, una stagione di sport: stessa forma, categoria diversa.",
@@ -174,6 +244,20 @@
   },
 
   "$defs": {
+    "contratto": {
+      "description": "Tipi di rapporto di lavoro. Elenco chiuso, condiviso fra il contratto di una voce passata e quelli che cerchi in preferenze.",
+      "enum": [
+        "tirocinio curriculare", "tirocinio extracurriculare", "apprendistato",
+        "tempo determinato", "tempo indeterminato", "collaborazione",
+        "partita iva", "lavoro occasionale", "altro"
+      ]
+    },
+
+    "modalita": {
+      "description": "Dove si lavora. Condiviso fra le voci passate e le preferenze.",
+      "enum": ["in presenza", "da remoto", "ibrido"]
+    },
+
     "data": {
       "type": "string",
       "description": "Data completa gg/mm/aaaa. La forma la controlla questo schema; che il giorno esista davvero lo controlla valida.py.",
@@ -490,16 +574,10 @@
       "additionalProperties": false,
       "required": ["contratto", "retribuito", "impegno", "modalita", "team", "referenti"],
       "properties": {
-        "contratto": {
-          "enum": [
-            "tirocinio curriculare", "tirocinio extracurriculare", "apprendistato",
-            "tempo determinato", "tempo indeterminato", "collaborazione",
-            "partita iva", "lavoro occasionale", "altro"
-          ]
-        },
+        "contratto": { "$ref": "#/$defs/contratto" },
         "retribuito": { "type": "boolean" },
         "impegno": { "enum": ["full time", "part time"] },
-        "modalita": { "enum": ["in presenza", "da remoto", "ibrido"] },
+        "modalita": { "$ref": "#/$defs/modalita" },
         "team": {
           "description": "Reparto, divisione o squadra. null se non applicabile.",
           "type": ["string", "null"]

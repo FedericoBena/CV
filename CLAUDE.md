@@ -1,103 +1,97 @@
-# CV di Federico Bena
+# Database personale di Federico Bena (e il CV che ne esce)
 
-Sorgenti LaTeX del CV. Il repo è **pubblico**: contiene email e foto, condivise di
-proposito (il CV va su LinkedIn e ai recruiter). Il **numero di telefono è stato
-tolto** e non va rimesso — chi vuole i contatti scrive una mail. La spiegazione
-completa — struttura, build, verifica, il perché dei `.docx` — sta in `README.md`:
-**leggilo prima di toccare qualcosa.**
-Qui sotto stanno solo le regole operative da rispettare quando ci lavori.
+Questa cartella **non è il repo di un CV**: è il database personale di Federico,
+e il CV è il suo primo consumatore. La cosa che conta è `dati/profilo.json` —
+storico completo, collegato e aggiornato, da cui tirare fuori materiale per CV
+adattati alla singola offerta, LinkedIn e moduli dei recruiter. Il contesto
+completo sta in `README.md`, che è scritto per un essere umano: leggilo prima.
 
-## Struttura in breve
+## Il database
 
-In **root** stanno solo le cose che si spediscono: i due file principali (`.tex`),
-i due PDF e i due DOCX prodotti, e il `README.md`. Tutto il resto è nelle
-sottocartelle, così aprendo la cartella si vede solo il CV. Il nome del file
-principale **è** il nome del PDF inviato ai recruiter: se lo rinomini, cambi il
-nome del PDF.
+`dati/profilo.json`, con accanto `profilo.schema.json` che ne detta la forma.
+**È l'unico file della cartella che nessuno può ricostruire**, e nessun altro
+file lo controlla: schema e validatore sono la sola rete che ha.
+
+- **Non genera niente**: i `.tex` del CV si scrivono a mano. È una miniera, non un
+  motore.
+- **Non si committa mai** nel repo pubblico: contiene codice fiscale, telefono,
+  voti, RAL e nomi di terzi. Lo blocca `.gitignore`.
+- **Ha una storia sua**, in un repo git privato dentro `dati/` (locale, senza
+  remote): il file più prezioso non poteva essere l'unico senza storia. Quando lo
+  modifichi, il commit si fa lì dentro — sempre chiedendo prima.
+- **Dopo ogni modifica**, `python strumenti/valida.py` deve uscire senza errori.
+  Non serve dopo le modifiche ai `.tex`: il database non entra nella build.
+
+Quello che c'è dentro **è la verità**. Le stesure precedenti, dove non sono già
+nel file, sono buttate: erano accrocchi fatti al volo, non si recuperano.
+
+### Stato della migrazione
+
+Il vecchio magazzino in prosa `note/CV_contenuti.md` sta finendo. Dentro al
+database: profilo, link, sommario, lingue, preferenze, magistrale, tirocinio
+Sensor Reply, 3 certificazioni MathWorks, 31 competenze. **Mancano**: triennale,
+diploma, CIAC, Dalibot, Bena S.N.C.
+
+Si migra **una voce per chat**, con Federico che porta i dati: le fonti sono
+sparse e i dati non si deducono — date approssimate su un modulo di selezione
+sono dati falsi. Finita la migrazione, `note/CV_contenuti.md` **si cancella**:
+non si archivia.
+
+## Il CV
+
+Due varianti che condividono lo stesso contenuto, distinte da un flag:
 
 | File principale (root) | PDF prodotto | Foto | GDPR |
 |---|---|---|---|
 | `CV_Federico_Bena.tex` | `CV_Federico_Bena.pdf` | no (`\photofalse`) | no |
 | `CV_Federico_Bena_photo.tex` | `CV_Federico_Bena_photo.pdf` | sì (`\phototrue`) | sì |
 
-- **`sorgenti/`** — tutto il contenuto condiviso, in una sola copia: il preambolo
-  (`sorgenti/Preambolo.tex`, che definisce il flag `\ifphoto`, il `\graphicspath` e
-  le macro `\cvsection` / `\cvevent`), l'intestazione (`sorgenti/Intestazione.tex`,
-  entrambe le versioni, sceglie con `\ifphoto`), le sezioni (`sorgenti/Profilo.tex`,
-  `Lavoro`, `Educazione`, `Competenze`, `Lingue`) e la foto (`sorgenti/fede.jpg`).
-  I due main la includono con `\input{sorgenti/...}`.
-- **`dati/`** — `profilo.json`, il **database personale** da cui esce il materiale
-  per CV, LinkedIn e moduli, con accanto `profilo.schema.json` che ne detta la
-  forma. Non genera niente: i `.tex` si scrivono a mano. Com'è fatto sta in
-  `README.md`.
-- **`strumenti/`** — `build.ps1`, `tex2docx.py` e `valida.py`: li lanci, non li apri.
-- **`note/`** — `CV_contenuti.md`, il vecchio magazzino **in via di sostituzione**
-  da parte di `dati/profilo.json`: tiene ancora la parte non migrata (triennale,
-  diploma, i lavori prima di Sensor Reply). Più `prompt-aggiorna-cv.md`. Non è un
-  sorgente e **non è la fonte della verità**: quella sono i `.tex`.
-
-I PDF e i DOCX in root **non sono versionati**, e nemmeno `dati/profilo.json`: le
-regole ignore stanno in `.git/info/exclude` (non in un `.gitignore`, per tenere la
-root pulita) e i file restano su disco, sincronizzati da Drive.
+Il nome del file principale **è** il nome del PDF che va ai recruiter. I testi
+stanno in `sorgenti/` (`Preambolo`, `Intestazione`, `Profilo`, `Lavoro`,
+`Educazione`, `Competenze`, `Lingue`), inclusi da entrambi i main. La fonte della
+verità del CV sono i `.tex`.
 
 ## Regole che non si violano
 
 1. **Mai duplicare un file per creare una variante.** È già successo: due copie di
-   `Lavoro.tex` erano divergute in silenzio e i due PDF dicevano cose diverse. Se
-   serve una variante, si usa un flag (`\newif`, come `\ifphoto`), mai un secondo
-   file con lo stesso contenuto.
-2. **Rigenera sempre con `build.ps1`, mai con `latexmk` a mano.** Da solo, latexmk
-   aggiorna i PDF e lascia indietro i `.docx`: ti ritrovi documenti che dicono cose
-   diverse.
+   `Lavoro.tex` divergute in silenzio, e i due PDF dicevano cose diverse. Se serve
+   una variante si usa un flag (`\newif`, come `\ifphoto`).
+2. **Rigenera con `build.ps1`, mai con `latexmk` a mano.**
    ```
    powershell -File strumenti/build.ps1
    ```
-   Fa in sequenza i due PDF, la pulizia degli ausiliari, i due `.docx`, e verifica
-   che ogni parola dei PDF stia anche nei `.docx` e che tutto entri in una pagina.
+   Fa i due PDF, pulisce gli ausiliari, fa i due `.docx`, e verifica che ogni
+   parola dei PDF stia anche nei `.docx` e che tutto entri in una pagina. Da solo,
+   `latexmk` aggiorna i PDF e lascia indietro i `.docx`.
 3. **Dopo ogni modifica ai sorgenti, ricompila entrambe le varianti e verifica.**
-   Confronta il testo del PDF prima e dopo (`pdftotext -layout`): l'unica differenza
-   deve essere quella voluta. "Compila senza errori" non è una verifica — su un CV
-   che si spedisce, un blocco che sparisce in silenzio è peggio di un errore.
-4. **Dopo ogni modifica ai sorgenti, riallinea il magazzino.** Il testo nuovo va in
-   `dati/profilo.json`, nei `testi` della voce che lo riguarda, con `usato_in` che
-   dice dove è finito; quello tolto **resta**, con la nota che spiega perché e
-   quando riprenderlo. Per le parti non ancora migrate (triennale, diploma, lavori
-   prima di Sensor Reply) vale ancora `note/CV_contenuti.md`. È l'unica deroga
-   sorvegliata al divieto di duplicazione: se diverge dal `.tex`, ha ragione il
-   `.tex`. Un magazzino che mente è peggio che non averlo.
-5. **Dopo ogni modifica al database, lancia il controllo.**
-   ```
-   python strumenti/valida.py
-   ```
-   Deve uscire senza errori. Non serve dopo le modifiche ai `.tex`: il database non
-   entra nella build del CV.
-6. **`dati/profilo.json` non si committa mai.** Contiene telefono, codice fiscale,
-   voti, date esatte e nomi di terzi. La regola in `.git/info/exclude` lo blocca, ma
-   controlla comunque `git status` prima di un commit: quella è la riga di confine
-   fra quello che è pubblico e quello che non lo è, e non si sposta. Lo **schema**
-   accanto invece si versiona: sono regole, non dati.
-7. **Il repo è pubblico, ma non è una scusa per aggiungere dati sensibili nuovi.**
-   Email e foto sono condivise di proposito; il numero di telefono non va nel CV (è
-   stato tolto, non rimetterlo — nel database sì, quello è fuori da git). Niente
-   documenti di terzi (moduli, elaborati): li blocca già `.git/info/exclude`.
-
-I `.docx` e i PDF sono **prodotti derivati**: si rigenerano, non si modificano (una
-correzione fatta in Word sparisce alla build successiva) e non si versionano (vedi
-sopra). `tex2docx.py` dà per buone le assunzioni sui sorgenti — le macro, i percorsi
-`sorgenti/`, l'ordine degli `\input`, la struttura di `Intestazione.tex`: se le
-cambi, aggiornalo. Si ferma con un errore invece di produrre un CV mutilo.
+   Confronta il testo prima e dopo (`pdftotext -layout`): l'unica differenza deve
+   essere quella voluta. "Compila senza errori" non è una verifica — su un CV che
+   si spedisce, un blocco che sparisce in silenzio è peggio di un errore.
+4. **Dopo ogni modifica al database, `python strumenti/valida.py`.**
+5. **Le regole ignore stanno in `.gitignore`, versionato.** Non in
+   `.git/info/exclude`: la riga che tiene i dati personali fuori da un repo
+   pubblico deve sopravvivere a un clone. Controlla comunque `git status` prima di
+   un commit: quella è la riga di confine fra pubblico e privato, e non si sposta.
+6. **Il repo è pubblico, ma non è una scusa per aggiungere dati sensibili nuovi.**
+   Email e foto sono condivise di proposito; il telefono è stato tolto dal CV e non
+   va rimesso (nel database sì, quello è fuori da git). Niente documenti di terzi.
+7. **Niente che non regga a un colloquio tecnico.** `Python (basic)` è la verità e
+   si difende; "Python, scikit-learn, ML" no. Il CV punta a difesa e aerospace,
+   dove il colloquio tecnico smonta le righe gonfiate.
 
 ## Note
 
-- **Oggi il CV compila senza nessun `Overfull \hbox`.** Se ne compare uno è una
-  regressione: sistemala, non conviverci. I due overfull storici erano trattini
-  non-separabili U+2011 (`‑`) dentro parole come `driving‑risk` o `ROC‑AUC`, su cui
-  LaTeX non può andare a capo: usa il trattino ASCII normale (`-`).
-- Il blocco GDPR (autorizzazione al trattamento dati) viene stampato **solo** nella
-  variante con foto.
-- Il vincolo è **una pagina**, e la variante con foto è quella stretta (la foto
+- I PDF e i `.docx` sono **prodotti derivati**: si rigenerano, non si modificano
+  (una correzione fatta in Word sparisce alla build successiva) e non si
+  versionano. `tex2docx.py` dà per buone le assunzioni sui sorgenti — macro,
+  percorsi, ordine degli `\input`: se le cambi, aggiornalo.
+- **Il vincolo è una pagina**, e la variante con foto è quella stretta (la foto
   costa ~48 pt di intestazione): ogni cosa che aggiungi va pagata togliendo
-  qualcos'altro. Vale anche per i `.docx`, dove `build.ps1` conta le pagine e si
-  ferma se sono due. Misure aggiornate e metodo in `note/prompt-aggiorna-cv.md`.
-- La cartella sta dentro Google Drive: se compaiono file o cartelle "fantasma" che
-  Windows dà come inaccessibili, è Drive che deve finire di sincronizzare.
+  qualcos'altro. Misure e metodo per rimisurarle in `note/spazio-cv.md`.
+- **Oggi il CV compila senza nessun `Overfull \hbox`.** Se ne compare uno è una
+  regressione: di solito è un trattino non-separabile U+2011 (`‑`) dentro una
+  parola come `driving‑risk`, su cui LaTeX non può andare a capo. Usa il trattino
+  ASCII normale.
+- Il blocco GDPR si stampa **solo** nella variante con foto.
+- La cartella sta in Google Drive: se compaiono file "fantasma" che Windows dà
+  come inaccessibili, è Drive che deve finire di sincronizzare.

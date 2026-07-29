@@ -1,0 +1,45 @@
+# Regole ignore del repo. Stanno qui, versionate, e non in .git/info/exclude:
+# la riga che tiene i dati personali fuori da un repo pubblico deve sopravvivere
+# a un clone o a un .git ricostruito. La struttura sta in README.md.
+
+# --- Database personale ------------------------------------------------------
+# dati/profilo.json e' il file piu' importante della cartella e l'unico che non
+# si puo' ricostruire: codice fiscale, telefono, voti, RAL, date esatte e nomi di
+# terzi. Resta sul disco, sincronizzato da Drive, con una storia git sua e
+# privata dentro dati/ (vedi sotto). Fuori dalla storia pubblica, sempre.
+dati/profilo.json
+
+# La storia privata del database e' un repo git a se' stante dentro dati/.
+# Senza questa riga il repo esterno lo vedrebbe e proverebbe a trattarlo come
+# sottomodulo.
+dati/.git/
+
+# --- Prodotti derivati -------------------------------------------------------
+# PDF e DOCX si rigenerano con strumenti/build.ps1, non si versionano. Restano
+# sul disco, sincronizzati da Drive. La regola blocca anche i documenti di terzi
+# (moduli, elaborati), che non vanno committati.
+*.pdf
+*.docx
+
+# --- Ausiliari LaTeX ---------------------------------------------------------
+*.aux
+*.log
+*.out
+*.toc
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.bbl
+*.blg
+*.lof
+*.lot
+*.nav
+*.snm
+*.vrb
+*.xdv
+
+# --- Google Drive / Windows --------------------------------------------------
+.tmp.drivedownload/
+.tmp.driveupload/
+desktop.ini
+Thumbs.db
