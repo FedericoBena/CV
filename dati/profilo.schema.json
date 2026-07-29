@@ -1,0 +1,471 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/FedericoBena/CV/dati/profilo.schema.json",
+  "title": "Database personale di Federico Bena",
+  "description": "Le regole che i dati devono rispettare. Questo file NON contiene dati: contiene la forma che devono avere. Lo applicano VS Code mentre scrivi e strumenti/valida.py quando lo lanci.",
+
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["profilo", "link", "sommario", "lingue", "voci", "registro_competenze"],
+
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Rimando a questo file. Serve a VS Code per controllare mentre scrivi."
+    },
+
+    "profilo": {
+      "type": "object",
+      "description": "Chi sei. Non ha una data, non sta su una linea del tempo.",
+      "additionalProperties": false,
+      "required": [
+        "nome", "cognome", "citta", "provincia", "cap", "paese",
+        "email", "telefono", "nascita", "nascita_luogo", "codice_fiscale", "patente"
+      ],
+      "properties": {
+        "nome": { "type": "string", "minLength": 1 },
+        "cognome": { "type": "string", "minLength": 1 },
+        "citta": { "type": "string", "minLength": 1 },
+        "provincia": {
+          "type": "string",
+          "pattern": "^[A-Z]{2}$",
+          "description": "Sigla di due lettere maiuscole, es. \"TO\"."
+        },
+        "cap": {
+          "type": "string",
+          "pattern": "^[0-9]{5}$",
+          "description": "Cinque cifre. Testo e non numero, altrimenti un CAP come 00185 perderebbe gli zeri iniziali."
+        },
+        "paese": { "type": "string", "minLength": 1 },
+        "email": { "type": "string", "pattern": "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$" },
+        "telefono": {
+          "description": "Con prefisso internazionale. Sta nel database perché i form lo chiedono, ma NON va nei sorgenti del CV: quelli sono pubblici e il numero è stato tolto apposta.",
+          "anyOf": [
+            { "type": "string", "pattern": "^\\+[0-9]{1,3}[0-9 ]{6,}$" },
+            { "type": "null" }
+          ]
+        },
+        "nascita": {
+          "description": "gg/mm/aaaa. null finché non è stata inserita.",
+          "anyOf": [{ "$ref": "#/$defs/data" }, { "type": "null" }]
+        },
+        "nascita_luogo": {
+          "description": "Comune di nascita: i moduli lo chiedono sempre accanto alla data.",
+          "anyOf": [{ "type": "string", "minLength": 1 }, { "type": "null" }]
+        },
+        "codice_fiscale": {
+          "description": "Sedici caratteri maiuscoli. Identificativo personale: sta qui perché i form lo chiedono, e per questo dati/profilo.json è escluso da git.",
+          "anyOf": [
+            { "type": "string", "pattern": "^[A-Z]{6}[0-9]{2}[A-EHLMPRST][0-9]{2}[A-Z][0-9]{3}[A-Z]$" },
+            { "type": "null" }
+          ]
+        },
+        "patente": {
+          "description": "Una riga per categoria, con la data di conseguimento: i form la chiedono. Lista vuota se nessuna patente.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["categoria", "dal"],
+            "properties": {
+              "categoria": {
+                "enum": ["AM", "A1", "A2", "A", "B1", "B", "BE", "C1", "C1E", "C", "CE", "D1", "D1E", "D", "DE"],
+                "description": "Categorie italiane. Elenco chiuso: \"B2\" non esiste."
+              },
+              "dal": { "$ref": "#/$defs/data" }
+            }
+          }
+        }
+      }
+    },
+
+    "link": {
+      "type": "array",
+      "description": "Indirizzi pubblici: profili, repository, portfolio.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "tipo", "etichetta", "url"],
+        "properties": {
+          "id": { "$ref": "#/$defs/identificatore" },
+          "tipo": { "enum": ["profilo", "codice", "sito", "portfolio", "pubblicazione", "altro"] },
+          "etichetta": { "type": "string", "minLength": 1 },
+          "url": { "type": "string", "pattern": "^https?://" }
+        }
+      }
+    },
+
+    "sommario": {
+      "type": "array",
+      "description": "Testi di presentazione, uno per destinazione. Il fatto è uno, i modi di raccontarlo sono tanti.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "tipo", "usi", "target", "lingua", "testo", "usato_in", "note"],
+        "properties": {
+          "id": { "$ref": "#/$defs/identificatore" },
+          "tipo": {
+            "enum": ["headline", "sommario"],
+            "description": "\"headline\" è la riga sotto il nome (LinkedIn, intestazione CV); \"sommario\" è il paragrafo di presentazione."
+          },
+          "usi": { "$ref": "#/$defs/usi" },
+          "target": {
+            "type": "string",
+            "minLength": 1,
+            "description": "A chi è rivolto: \"aerospace e difesa\", \"software\", \"generico\"."
+          },
+          "lingua": { "$ref": "#/$defs/lingua_testo" },
+          "testo": { "type": "string", "minLength": 1 },
+          "usato_in": { "$ref": "#/$defs/usato_in" },
+          "note": { "type": ["string", "null"] }
+        }
+      }
+    },
+
+    "lingue": {
+      "type": "array",
+      "description": "Sezione a sé: le lingue hanno una scala loro (il quadro europeo), non i livelli delle competenze tecniche.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "nome", "livello", "certificazione", "note"],
+        "properties": {
+          "id": { "$ref": "#/$defs/identificatore" },
+          "nome": { "type": "string", "minLength": 1 },
+          "livello": {
+            "enum": ["A1", "A2", "B1", "B2", "C1", "C2", "madrelingua"],
+            "description": "Quadro comune europeo. Solo un livello che regge a una conversazione vera."
+          },
+          "certificazione": {
+            "description": "null se non ne hai. Un esame sostenuto vale più di un'autovalutazione.",
+            "anyOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["nome", "ente", "data"],
+                "properties": {
+                  "nome": { "type": "string", "minLength": 1 },
+                  "ente": { "type": "string", "minLength": 1 },
+                  "data": { "$ref": "#/$defs/data" }
+                }
+              },
+              { "type": "null" }
+            ]
+          },
+          "note": {
+            "type": ["string", "null"],
+            "description": "L'evidenza a sostegno: \"magistrale interamente in inglese\". null se non serve."
+          }
+        }
+      }
+    },
+
+    "voci": {
+      "type": "array",
+      "description": "Tutto quello che hai fatto. Un lavoro, una laurea, una stagione di sport: stessa forma, categoria diversa.",
+      "items": { "$ref": "#/$defs/voce" }
+    },
+
+    "registro_competenze": {
+      "type": "array",
+      "description": "Cosa sai fare. Ogni competenza è definita qui una volta sola; le voci la richiamano per id.",
+      "items": { "$ref": "#/$defs/competenza" }
+    }
+  },
+
+  "$defs": {
+    "data": {
+      "type": "string",
+      "description": "Data completa gg/mm/aaaa. La forma la controlla questo schema; che il giorno esista davvero lo controlla valida.py.",
+      "pattern": "^(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[0-2])/(19|20)[0-9]{2}$"
+    },
+
+    "riferimenti": {
+      "type": "array",
+      "description": "Dove sta la roba: cartella su disco, repository, documento, certificato online. È il campo che fra due anni ti fa ritrovare il lavoro invece di ricordartelo e basta. Può essere vuoto.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["tipo", "valore"],
+        "properties": {
+          "tipo": { "enum": ["cartella", "repo", "documento", "certificato", "url", "altro"] },
+          "valore": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+
+    "identificatore": {
+      "type": "string",
+      "description": "Minuscolo, cifre e trattini. Stabile: non si rinomina e non si riusa.",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+
+    "lingua_testo": {
+      "enum": ["it", "en"],
+      "description": "In che lingua è scritto un testo (non da confondere con la sezione lingue)."
+    },
+
+    "usi": {
+      "type": "array",
+      "description": "A cosa serve questo testo. Più di uno, perché lo stesso paragrafo può andare sul CV e su LinkedIn: tenerne due copie identiche sarebbe il modo migliore per farle divergere.",
+      "items": { "enum": ["cv", "linkedin", "form", "lettera"] },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+
+    "usato_in": {
+      "type": "array",
+      "description": "In quali documenti questo testo è stato davvero usato, anche in passato: \"CV luglio 2026\", \"candidatura Leonardo\". Elenco vuoto = formulazione pronta ma mai spedita. Sostituisce un campo \"attuale/archiviato\", che invecchiava male: il CV si riscrive a ogni offerta, quindi non esiste una versione attuale unica.",
+      "items": { "type": "string", "minLength": 1 }
+    },
+
+    "categoria": {
+      "enum": ["lavoro", "scuola", "corso", "certificazione", "progetto", "hobby", "sport", "volontariato"],
+      "description": "Elenco chiuso: \"corsi\" è un errore, non una categoria nuova. Si allunga qui quando serve davvero."
+    },
+
+    "voce": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id", "categoria", "titolo", "ente", "luogo",
+        "inizio", "fine", "in_corso",
+        "descrizione", "competenze_usate", "attivita", "riferimenti", "dettagli", "testi"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/identificatore" },
+        "categoria": { "$ref": "#/$defs/categoria" },
+        "titolo": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Ruolo, titolo di studio, attività."
+        },
+        "ente": {
+          "anyOf": [{ "type": "string", "minLength": 1 }, { "type": "null" }],
+          "description": "Organizzazione. null se non c'è (un hobby coltivato da solo)."
+        },
+        "luogo": {
+          "anyOf": [{ "type": "string", "minLength": 1 }, { "type": "null" }],
+          "description": "Città, paese. null se non applicabile."
+        },
+        "inizio": { "$ref": "#/$defs/data" },
+        "fine": {
+          "anyOf": [{ "$ref": "#/$defs/data" }, { "type": "null" }],
+          "description": "Data completa se è finita, null se in_corso. Uguale a inizio per le cose di un giorno solo."
+        },
+        "in_corso": { "type": "boolean" },
+        "descrizione": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Una o due frasi in italiano. Cos'era, in concreto."
+        },
+        "competenze_usate": {
+          "type": "array",
+          "description": "Solo gli id presi da registro_competenze: rimandi, non copie.",
+          "items": { "$ref": "#/$defs/identificatore" },
+          "uniqueItems": true
+        },
+        "attivita": {
+          "type": "array",
+          "description": "Cosa hai fatto là dentro, in dettaglio. Può essere vuoto.",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["titolo", "descrizione", "corso", "competenze_usate", "risultati", "riferimenti"],
+            "properties": {
+              "titolo": { "type": "string", "minLength": 1 },
+              "descrizione": { "type": "string", "minLength": 1 },
+              "corso": {
+                "description": "Codice dell'esame da cui nasce l'attività, es. \"01OUZQW\". Deve esistere fra gli esami della stessa voce: lo controlla valida.py. null se l'attività non nasce da un corso.",
+                "type": ["string", "null"]
+              },
+              "competenze_usate": {
+                "type": "array",
+                "description": "Le competenze usate in QUESTO lavoro: è il livello di dettaglio che risponde a \"in quale progetto ho usato X?\". Quelle sulla voce sono invece le trasversali, che non appartengono a nessuna attività in particolare.",
+                "items": { "$ref": "#/$defs/identificatore" },
+                "uniqueItems": true
+              },
+              "risultati": {
+                "type": "array",
+                "description": "Esiti misurabili o cose consegnate. Può essere vuoto.",
+                "items": { "type": "string", "minLength": 1 }
+              },
+              "riferimenti": { "$ref": "#/$defs/riferimenti" }
+            }
+          }
+        },
+        "riferimenti": {
+          "$ref": "#/$defs/riferimenti",
+          "description": "Documenti che riguardano la voce nel suo insieme: il certificato, il contratto, il diploma. Quelli di un singolo lavoro stanno dentro la sua attività."
+        },
+        "dettagli": {
+          "type": "object",
+          "description": "I campi che valgono solo per questa categoria: voto e relatore per scuola, ruolo e categoria per sport. Forma libera, così una categoria non trascina campi vuoti nelle altre."
+        },
+        "testi": {
+          "type": "array",
+          "description": "Formulazioni pronte da riusare. Il fatto è uno, i modi di raccontarlo sono tanti.",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["usi", "lingua", "testo", "usato_in", "note"],
+            "properties": {
+              "usi": { "$ref": "#/$defs/usi" },
+              "lingua": { "$ref": "#/$defs/lingua_testo" },
+              "testo": { "type": "string", "minLength": 1 },
+              "usato_in": { "$ref": "#/$defs/usato_in" },
+              "note": {
+                "description": "Quando riprendere questo testo, o perché è stato messo da parte. null se non serve.",
+                "type": ["string", "null"]
+              }
+            }
+          }
+        }
+      },
+
+      "allOf": [
+        {
+          "description": "Coerenza fra in_corso e fine: se è in corso la fine non esiste, se non lo è la fine è obbligatoria.",
+          "if": {
+            "properties": { "in_corso": { "const": true } },
+            "required": ["in_corso"]
+          },
+          "then": {
+            "properties": {
+              "fine": { "type": "null" }
+            }
+          },
+          "else": {
+            "properties": {
+              "fine": { "$ref": "#/$defs/data" }
+            }
+          }
+        },
+        {
+          "description": "Per la categoria scuola, dettagli non è più libero: ha una forma sua, controllata come il resto.",
+          "if": {
+            "properties": { "categoria": { "const": "scuola" } },
+            "required": ["categoria"]
+          },
+          "then": {
+            "properties": { "dettagli": { "$ref": "#/$defs/dettagli_scuola" } }
+          }
+        }
+      ]
+    },
+
+    "dettagli_scuola": {
+      "type": "object",
+      "description": "I campi propri di un titolo di studio. Valgono per la categoria scuola e per nessun'altra.",
+      "additionalProperties": false,
+      "required": ["tipo", "classe", "struttura", "orientamento", "matricola", "lingua", "voto_finale", "tesi", "esami"],
+      "properties": {
+        "tipo": { "enum": ["diploma", "triennale", "magistrale", "master", "dottorato", "altro"] },
+        "classe": {
+          "description": "Classe ministeriale, es. \"LM-25 (DM270)\". null dove non esiste (il diploma).",
+          "type": ["string", "null"]
+        },
+        "struttura": {
+          "description": "Collegio o dipartimento a cui afferisce il corso.",
+          "type": ["string", "null"]
+        },
+        "orientamento": {
+          "description": "Il percorso scelto dentro il corso di laurea, con il suo nome ufficiale.",
+          "type": ["string", "null"]
+        },
+        "matricola": { "type": ["string", "null"] },
+        "lingua": { "$ref": "#/$defs/lingua_testo" },
+        "voto_finale": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["valore", "base", "lode"],
+          "properties": {
+            "valore": {
+              "description": "Il voto preso. null se il titolo non è ancora conseguito.",
+              "type": ["integer", "null"]
+            },
+            "base": {
+              "description": "Su quanto: 110 per una laurea, 100 per il diploma.",
+              "type": "integer"
+            },
+            "lode": { "type": "boolean" }
+          }
+        },
+        "tesi": {
+          "description": "null dove non c'è (il diploma).",
+          "anyOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["titolo", "lingua", "relatori", "svolta_presso"],
+              "properties": {
+                "titolo": { "type": "string", "minLength": 1 },
+                "lingua": { "$ref": "#/$defs/lingua_testo" },
+                "relatori": {
+                  "type": "array",
+                  "items": { "type": "string", "minLength": 1 }
+                },
+                "svolta_presso": {
+                  "description": "id della voce dove è stata svolta (un'azienda, un laboratorio). null se è rimasta interna all'università.",
+                  "anyOf": [{ "$ref": "#/$defs/identificatore" }, { "type": "null" }]
+                }
+              }
+            },
+            { "type": "null" }
+          ]
+        },
+        "esami": {
+          "type": "array",
+          "description": "Il libretto, così come lo esporta il portale. Lista vuota se non lo si vuole tenere.",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["codice", "nome", "cfu", "voto", "data", "note"],
+            "properties": {
+              "codice": { "type": "string", "minLength": 1 },
+              "nome": { "type": "string", "minLength": 1 },
+              "cfu": { "type": "integer", "minimum": 1 },
+              "voto": {
+                "anyOf": [
+                  { "type": "integer", "minimum": 18, "maximum": 30 },
+                  { "enum": ["30L", "superato", "idoneo"] }
+                ]
+              },
+              "data": { "$ref": "#/$defs/data" },
+              "note": {
+                "description": "Serve soprattutto a registrare cosa NON c'è: \"solo esame scritto, nessun progetto\" è un dato, e evita di ricercarlo ogni volta. null se non c'è niente da dire.",
+                "type": ["string", "null"]
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "competenza": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "nome", "gruppo", "livello", "note"],
+      "properties": {
+        "id": { "$ref": "#/$defs/identificatore" },
+        "nome": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Come si scrive per esteso: \"IPG CarMaker\", non \"carmaker\"."
+        },
+        "gruppo": {
+          "enum": ["programmazione", "simulazione", "cad", "strumenti", "metodi", "trasversale"],
+          "description": "\"metodi\" è per quello che non è un software ma si sa fare: HARA, ISO 26262, testing. Le lingue non stanno qui: hanno una sezione loro."
+        },
+        "livello": {
+          "enum": ["base", "intermedio", "avanzato"],
+          "description": "Quello che regge a un colloquio tecnico, non quello che suona bene."
+        },
+        "note": {
+          "type": ["string", "null"],
+          "description": "Precisazioni: dove l'hai imparata, versioni, limiti onesti. null se non serve."
+        }
+      }
+    }
+  }
+}
