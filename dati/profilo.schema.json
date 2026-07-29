@@ -350,6 +350,16 @@
           "then": {
             "properties": { "dettagli": { "$ref": "#/$defs/dettagli_scuola" } }
           }
+        },
+        {
+          "description": "Stessa cosa per la categoria lavoro: contratto, impegno, team e referenti sono i campi che ogni modulo di selezione chiede.",
+          "if": {
+            "properties": { "categoria": { "const": "lavoro" } },
+            "required": ["categoria"]
+          },
+          "then": {
+            "properties": { "dettagli": { "$ref": "#/$defs/dettagli_lavoro" } }
+          }
         }
       ]
     },
@@ -436,6 +446,42 @@
                 "description": "Serve soprattutto a registrare cosa NON c'è: \"solo esame scritto, nessun progetto\" è un dato, e evita di ricercarlo ogni volta. null se non c'è niente da dire.",
                 "type": ["string", "null"]
               }
+            }
+          }
+        }
+      }
+    },
+
+    "dettagli_lavoro": {
+      "type": "object",
+      "description": "I campi propri di un'esperienza di lavoro. Valgono per la categoria lavoro e per nessun'altra.",
+      "additionalProperties": false,
+      "required": ["contratto", "retribuito", "impegno", "modalita", "team", "referenti"],
+      "properties": {
+        "contratto": {
+          "enum": [
+            "tirocinio curriculare", "tirocinio extracurriculare", "apprendistato",
+            "tempo determinato", "tempo indeterminato", "collaborazione",
+            "partita iva", "lavoro occasionale", "altro"
+          ]
+        },
+        "retribuito": { "type": "boolean" },
+        "impegno": { "enum": ["full time", "part time"] },
+        "modalita": { "enum": ["in presenza", "da remoto", "ibrido"] },
+        "team": {
+          "description": "Reparto, divisione o squadra. null se non applicabile.",
+          "type": ["string", "null"]
+        },
+        "referenti": {
+          "type": "array",
+          "description": "Tutor, responsabili, persone da citare come riferimento. Nomi di terzi: uno dei motivi per cui questo file sta fuori da git.",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["nome", "ruolo"],
+            "properties": {
+              "nome": { "type": "string", "minLength": 1 },
+              "ruolo": { "type": "string", "minLength": 1 }
             }
           }
         }
