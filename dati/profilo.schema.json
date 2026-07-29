@@ -230,7 +230,7 @@
       "required": [
         "id", "categoria", "titolo", "ente", "luogo",
         "inizio", "fine", "in_corso",
-        "descrizione", "competenze_usate", "attivita", "riferimenti", "dettagli", "testi"
+        "descrizione", "note", "competenze_usate", "attivita", "riferimenti", "dettagli", "testi"
       ],
       "properties": {
         "id": { "$ref": "#/$defs/identificatore" },
@@ -258,6 +258,11 @@
           "type": "string",
           "minLength": 1,
           "description": "Una o due frasi in italiano. Cos'era, in concreto."
+        },
+        "note": {
+          "type": ["string", "null"],
+          "description": "Promemoria di servizio sulla voce: decisioni prese, documenti che mancano e perché, cose da non richiedere una seconda volta. null se non c'è niente da dire.",
+          "examples": ["Nessun attestato del tirocinio: non ne è stato rilasciato."]
         },
         "competenze_usate": {
           "type": "array",
@@ -360,6 +365,16 @@
           "then": {
             "properties": { "dettagli": { "$ref": "#/$defs/dettagli_lavoro" } }
           }
+        },
+        {
+          "description": "E per le certificazioni: quello che conta e' se scadono e con che codice si verificano.",
+          "if": {
+            "properties": { "categoria": { "const": "certificazione" } },
+            "required": ["categoria"]
+          },
+          "then": {
+            "properties": { "dettagli": { "$ref": "#/$defs/dettagli_certificazione" } }
+          }
         }
       ]
     },
@@ -448,6 +463,23 @@
               }
             }
           }
+        }
+      }
+    },
+
+    "dettagli_certificazione": {
+      "type": "object",
+      "description": "I campi propri di una certificazione. Una scaduta resta nel database: e' successa, semplicemente non si dichiara come valida.",
+      "additionalProperties": false,
+      "required": ["scadenza", "codice"],
+      "properties": {
+        "scadenza": {
+          "description": "null se non scade. Se c'e' ed e' passata, la certificazione non va dichiarata come valida.",
+          "anyOf": [{ "$ref": "#/$defs/data" }, { "type": "null" }]
+        },
+        "codice": {
+          "description": "Codice o identificativo con cui l'ente la verifica. null se non c'e'.",
+          "type": ["string", "null"]
         }
       }
     },
