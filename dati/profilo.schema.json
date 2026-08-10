@@ -529,11 +529,24 @@
           "items": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["codice", "nome", "cfu", "voto", "data", "note"],
+            "required": ["codice", "nome", "cfu", "ssd", "voto", "data", "note"],
             "properties": {
               "codice": { "type": "string", "minLength": 1 },
               "nome": { "type": "string", "minLength": 1 },
-              "cfu": { "type": "integer", "minimum": 1 },
+              "cfu": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "Il totale dell'esame. Dove il libretto li spezza fra due settori, qui va la somma e ssd dice fra quali."
+              },
+              "ssd": {
+                "type": "array",
+                "description": "Settori scientifico-disciplinari dell'esame, come li scrive l'autocertificazione: \"MAT/05\", \"ING-IND/14\". Più di uno quando i CFU sono divisi (Algebra lineare e geometria: 7 MAT/03 + 3 MAT/08). Elenco vuoto dove il libretto stampa \"*** N/A ***\", cioè la prova finale.",
+                "items": {
+                  "type": "string",
+                  "pattern": "^[A-Z]+(-[A-Z]+)?/[0-9]{2}$"
+                },
+                "uniqueItems": true
+              },
               "voto": {
                 "anyOf": [
                   { "type": "integer", "minimum": 18, "maximum": 30 },
