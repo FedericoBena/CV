@@ -28,14 +28,25 @@ nel file, sono buttate: erano accrocchi fatti al volo, non si recuperano.
 ### Stato della migrazione
 
 Il vecchio magazzino in prosa `note/CV_contenuti.md` sta finendo. Dentro al
-database: profilo, link, sommario, lingue, preferenze, magistrale, tirocinio
-Sensor Reply, 3 certificazioni MathWorks, 31 competenze. **Mancano**: triennale,
+database: profilo, link, sommario, lingue, preferenze, magistrale, triennale,
+tirocinio Sensor Reply, 3 certificazioni MathWorks, 34 competenze. **Mancano**:
 diploma, CIAC, Dalibot, Bena S.N.C.
 
 Si migra **una voce per chat**, con Federico che porta i dati: le fonti sono
 sparse e i dati non si deducono — date approssimate su un modulo di selezione
 sono dati falsi. Finita la migrazione, `note/CV_contenuti.md` **si cancella**:
 non si archivia.
+
+### Come si annotano gli esami
+
+Il `note` di un esame dice **cosa è stato fatto**, in una riga: `Solo esame.`
+oppure `Esame più progetto: <cosa>`. Niente motivazioni, niente rimandi ad altri
+campi, niente materiale di studio. Il modello è la magistrale: si guarda come
+sono scritti quegli esami e si fa uguale.
+
+Il progetto vero sta in `attivita`, agganciato al codice del corso, con le
+`competenze_usate` e i `riferimenti` a dove sta la roba. Una competenza usata in
+un progetto va anche nel `registro_competenze`, se non c'è già.
 
 ## Il CV
 
