@@ -13,9 +13,9 @@ un'offerta, il voto di un esame che non ricordo.
 
 Il database sta prendendo il posto degli appunti in prosa che stavano in `note/`.
 Dentro ci sono già tutti gli studi (magistrale e triennale, esame per esame, con
-i progetti fatti), il tirocinio in Sensor Reply, l'anno da insegnante in CIAC e le
-certificazioni. Mancano i due lavori più vecchi e il diploma: finché non entrano,
-quegli appunti restano.
+i progetti fatti), il tirocinio in Sensor Reply, l'anno da insegnante in CIAC,
+l'anno da progettista in Dalibot e le certificazioni. Mancano il lavoro più
+vecchio e il diploma: finché non entrano, quegli appunti restano.
 
 ## Le due cose che ci sono dentro
 
