@@ -29,8 +29,8 @@ nel file, sono buttate: erano accrocchi fatti al volo, non si recuperano.
 
 Il vecchio magazzino in prosa `note/CV_contenuti.md` sta finendo. Dentro al
 database: profilo, link, sommario, lingue, preferenze, magistrale, triennale,
-tirocinio Sensor Reply, 3 certificazioni MathWorks, 34 competenze. **Mancano**:
-diploma, CIAC, Dalibot, Bena S.N.C.
+tirocinio Sensor Reply, docenza CIAC, 3 certificazioni MathWorks, 35 competenze.
+**Mancano**: diploma, Dalibot, Bena S.N.C.
 
 Si migra **una voce per chat**, con Federico che porta i dati: le fonti sono
 sparse e i dati non si deducono — date approssimate su un modulo di selezione

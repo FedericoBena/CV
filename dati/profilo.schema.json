@@ -589,7 +589,7 @@
       "properties": {
         "contratto": { "$ref": "#/$defs/contratto" },
         "retribuito": { "type": "boolean" },
-        "impegno": { "enum": ["full time", "part time"] },
+        "impegno": { "enum": ["full time", "part time", "a ore"] },
         "modalita": { "$ref": "#/$defs/modalita" },
         "team": {
           "description": "Reparto, divisione o squadra. null se non applicabile.",
