@@ -9,6 +9,13 @@ collegato**, pronto a darmi l'informazione giusta quando serve: la data esatta d
 un contratto mentre compilo un form, il testo di un'esperienza da adattare a
 un'offerta, il voto di un esame che non ricordo.
 
+## A che punto sono
+
+Il database sta prendendo il posto degli appunti in prosa che stavano in `note/`.
+Dentro ci sono già tutti gli studi (magistrale e triennale, esame per esame, con
+i progetti fatti), il tirocinio in Sensor Reply e le certificazioni. Mancano i
+lavori più vecchi e il diploma: finché non entrano, quegli appunti restano.
+
 ## Le due cose che ci sono dentro
 
 **Il database** — `dati/profilo.json`. È la parte importante. Tutto è nella stessa
