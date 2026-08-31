@@ -30,7 +30,9 @@ nel file, sono buttate: erano accrocchi fatti al volo, non si recuperano.
 Il vecchio magazzino in prosa `note/CV_contenuti.md` sta finendo. Dentro al
 database: profilo, link, sommario, lingue, preferenze, magistrale, triennale,
 tirocinio Sensor Reply, docenza CIAC, stage Dalibot, 3 certificazioni MathWorks,
-46 competenze. **Mancano**: diploma, Bena S.N.C.
+46 competenze. **Mancano** quattro voci: il diploma, le due aziende Bena — che nel
+database vanno separate, anche se sul CV possono diventare una riga sola — e un
+lavoro in un kebab.
 
 Si migra **una voce per chat**, con Federico che porta i dati: le fonti sono
 sparse e i dati non si deducono — date approssimate su un modulo di selezione
