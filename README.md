@@ -14,10 +14,11 @@ un'offerta, il voto di un esame che non ricordo.
 Il database sta prendendo il posto degli appunti in prosa che stavano in `note/`.
 Dentro ci sono già tutti gli studi (il diploma, e magistrale e triennale esame
 per esame, con i progetti fatti), il tirocinio in Sensor Reply, l'anno da
-insegnante in CIAC, l'anno da progettista in Dalibot, le certificazioni e la
-stampa 3D che faccio per conto mio. Mancano due cose: le due aziende Bena — che
-nel database stanno separate, anche se sul CV possono finire in una riga sola — e
-un lavoro in un kebab. Finché non entrano, quegli appunti restano.
+insegnante in CIAC, l'anno da progettista in Dalibot, l'alternanza del liceo in
+Bena S.R.L., le certificazioni e la stampa 3D che faccio per conto mio. Mancano
+due cose: Bena S.N.C., l'altra azienda Bena — che nel database sta separata dalla
+S.R.L., anche se sul CV possono finire in una riga sola — e un lavoro in un
+kebab. Finché non entrano, quegli appunti restano.
 
 ## Le due cose che ci sono dentro
 
