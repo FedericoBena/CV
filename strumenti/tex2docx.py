@@ -357,15 +357,23 @@ def main():
     sorgente = leggi(principale)
     foto = (radice / "sorgenti" / "fede.jpg") if r"\phototrue" in sorgente else None
 
-    # Il GDPR sta nel file principale (solo nella variante con foto) ed e'
-    # l'unico testo che vive li' invece che in un file di contenuto.
-    m = re.search(r"\\tiny\s*(Autorizzo.*?)\s*\\end\{center\}", sorgente, re.S)
-    gdpr = re.sub(r"\s+", " ", m.group(1)) if m else None
-
     # I file di contenuto, nell'ordine in cui il .tex li include. Ora stanno in
     # sorgenti/, quindi gli \input portano il prefisso (es. \input{sorgenti/Profilo}).
     inclusi = re.findall(r"(?m)^\s*\\input\{([^}]+)\}", sorgente)
-    contenuti = [n for n in inclusi if n not in ("sorgenti/Preambolo", "sorgenti/Intestazione")]
+    contenuti = [n for n in inclusi
+                 if n not in ("sorgenti/Preambolo", "sorgenti/Intestazione", "sorgenti/GDPR")]
+
+    # Il GDPR sta in "sorgenti/GDPR.tex", incluso da entrambi i main ma stampato
+    # solo dove il flag e' \phototrue: la stessa condizione che il .tex risolve
+    # con \ifphoto, qui la decide "foto". Non e' una sezione, quindi resta fuori
+    # dai contenuti qui sopra.
+    gdpr = None
+    if foto and "sorgenti/GDPR" in inclusi:
+        m = re.search(r"\\tiny\s*(Autorizzo.*?)\s*\\end\{center\}",
+                      leggi(radice / "sorgenti" / "GDPR.tex"), re.S)
+        if not m:
+            sys.exit("sorgenti/GDPR.tex: non trovo il testo dell'autorizzazione")
+        gdpr = re.sub(r"\s+", " ", m.group(1))
     if not contenuti:
         sys.exit(f"{principale}: nessun file di contenuto incluso, qualcosa non torna")
 

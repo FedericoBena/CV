@@ -1,0 +1,17 @@
+% Autorizzazione al trattamento dei dati: si stampa SOLO nella variante con
+% foto. Il flag e' definito in "sorgenti/Preambolo.tex" e impostato dal file
+% principale, come per l'intestazione.
+%
+% Il blocco sta qui e non nei due main perche' li' era scritto due volte, una
+% per variante, e in quella senza foto era tenuto spento a colpi di commento:
+% due copie dello stesso testo che prima o poi divergono. Vedi la regola 1 in
+% CLAUDE.md.
+\ifphoto
+
+\vfill
+\begin{center}
+    \tiny
+    Autorizzo il trattamento dei miei dati personali presenti nel CV ai sensi dell’art. 13 d. lgs. 30 giugno 2003 n. 196 - “Codice in materia di protezione dei dati personali” e dell’art. 13 GDPR 679/16 - “Regolamento europeo sulla protezione dei dati personali”.
+\end{center}
+
+\fi

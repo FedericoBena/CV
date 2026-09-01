@@ -61,8 +61,8 @@ Due varianti che condividono lo stesso contenuto, distinte da un flag:
 
 Il nome del file principale **è** il nome del PDF che va ai recruiter. I testi
 stanno in `sorgenti/` (`Preambolo`, `Intestazione`, `Profilo`, `Lavoro`,
-`Educazione`, `Competenze`, `Lingue`), inclusi da entrambi i main. La fonte della
-verità del CV sono i `.tex`.
+`Educazione`, `Competenze`, `Lingue`, `GDPR`), inclusi da entrambi i main. La
+fonte della verità del CV sono i `.tex`.
 
 ## Regole che non si violano
 
@@ -111,6 +111,8 @@ stride con una di queste, si dice in una riga e poi si esegue.
   regressione: di solito è un trattino non-separabile U+2011 (`‑`) dentro una
   parola come `driving‑risk`, su cui LaTeX non può andare a capo. Usa il trattino
   ASCII normale.
-- Il blocco GDPR si stampa **solo** nella variante con foto.
+- Il blocco GDPR sta in `sorgenti/GDPR.tex`, incluso da entrambi i main e
+  stampato **solo** nella variante con foto: dentro c'è un `\ifphoto`, come
+  nell'intestazione. `tex2docx.py` rispecchia la stessa condizione.
 - La cartella sta in Google Drive: se compaiono file "fantasma" che Windows dà
   come inaccessibili, è Drive che deve finire di sincronizzare.
