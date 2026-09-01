@@ -27,20 +27,22 @@ nel file, sono buttate: erano accrocchi fatti al volo, non si recuperano.
 
 ### Stato della migrazione
 
-Il vecchio magazzino in prosa `note/CV_contenuti.md` sta finendo. Dentro al
-database: profilo, link, sommario, lingue, preferenze, magistrale, triennale,
-diploma, tirocinio Sensor Reply, docenza CIAC, stage Dalibot, alternanza Bena
-S.R.L., le consegne per il kebab, 3 certificazioni MathWorks, la stampa 3D per
-hobby, 48 competenze. **Manca** una voce sola: Bena S.N.C. — l'altra azienda
-Bena, che nel database va separata dalla S.R.L., anche se sul CV possono
-diventare una riga sola.
+**La migrazione dei dati è completa.** Dentro al database: profilo, link,
+sommario, lingue, preferenze, magistrale, triennale, diploma, tirocinio Sensor
+Reply, docenza CIAC, stage Dalibot, alternanza Bena S.R.L., lavoro in Bena
+S.N.C., le consegne per il kebab, 3 certificazioni MathWorks, la stampa 3D per
+hobby, 51 competenze. Non manca nessuna voce.
 
-Si migra **una voce per chat**, con Federico che porta i dati: le fonti sono
-sparse e i dati non si deducono — date approssimate su un modulo di selezione
-sono dati falsi. **Chi migra una voce aggiorna anche questo elenco**, qui, in
-`README.md` e in `note/CV_contenuti.md`: se lo si rimanda, i tre documenti
-mentono fino alla chat dopo. Finita la migrazione, `note/CV_contenuti.md`
-**si cancella**: non si archivia.
+Resta un passo solo: **verificare `note/CV_contenuti.md` e cancellarlo**. La
+verifica si fa in una chat sua — si controlla che quel file non contenga più
+niente che non sia già nel database o nei `.tex`, e poi il file si elimina: non
+si archivia. Fino ad allora resta lì, ed è materiale da verificare, non dati
+buoni.
+
+I dati sono stati portati **una voce per chat**, con Federico che portava le
+fonti: sono sparse e i dati non si deducono — date approssimate su un modulo di
+selezione sono dati falsi. Se in futuro entra una voce nuova, vale la stessa
+regola: i dati li porta Federico, non si ricostruiscono.
 
 ### Come si annotano gli esami
 
