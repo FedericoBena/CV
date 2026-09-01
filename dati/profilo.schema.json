@@ -245,11 +245,11 @@
 
   "$defs": {
     "contratto": {
-      "description": "Tipi di rapporto di lavoro. Elenco chiuso, condiviso fra il contratto di una voce passata e quelli che cerchi in preferenze.",
+      "description": "Tipi di rapporto di lavoro. Elenco chiuso, condiviso fra il contratto di una voce passata e quelli che cerchi in preferenze. \"lavoro intermittente\" c'è perché il lavoro a chiamata è un rapporto da lavoro dipendente, e \"lavoro occasionale\" è un'altra cosa.",
       "enum": [
         "tirocinio curriculare", "tirocinio extracurriculare", "apprendistato",
-        "tempo determinato", "tempo indeterminato", "collaborazione",
-        "partita iva", "lavoro occasionale", "altro"
+        "tempo determinato", "tempo indeterminato", "lavoro intermittente",
+        "collaborazione", "partita iva", "lavoro occasionale", "altro"
       ]
     },
 
