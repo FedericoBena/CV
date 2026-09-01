@@ -25,24 +25,19 @@ file lo controlla: schema e validatore sono la sola rete che ha.
 Quello che c'è dentro **è la verità**. Le stesure precedenti, dove non sono già
 nel file, sono buttate: erano accrocchi fatti al volo, non si recuperano.
 
-### Stato della migrazione
+### Da dove arrivano i dati
 
-**La migrazione dei dati è completa.** Dentro al database: profilo, link,
-sommario, lingue, preferenze, magistrale, triennale, diploma, tirocinio Sensor
-Reply, docenza CIAC, stage Dalibot, alternanza Bena S.R.L., lavoro in Bena
-S.N.C., le consegne per il kebab, 3 certificazioni MathWorks, la stampa 3D per
-hobby, 51 competenze. Non manca nessuna voce.
+Il database è completo: profilo, link, sommario, lingue, preferenze, magistrale,
+triennale, diploma, tirocinio Sensor Reply, docenza CIAC, stage Dalibot,
+alternanza Bena S.R.L., lavoro in Bena S.N.C., le consegne per il kebab,
+3 certificazioni MathWorks, la stampa 3D per hobby, 51 competenze. Non c'è nessun
+altro posto da cui pescare: i vecchi appunti in prosa non esistono più.
 
-Resta un passo solo: **verificare `note/CV_contenuti.md` e cancellarlo**. La
-verifica si fa in una chat sua — si controlla che quel file non contenga più
-niente che non sia già nel database o nei `.tex`, e poi il file si elimina: non
-si archivia. Fino ad allora resta lì, ed è materiale da verificare, non dati
-buoni.
-
-I dati sono stati portati **una voce per chat**, con Federico che portava le
-fonti: sono sparse e i dati non si deducono — date approssimate su un modulo di
-selezione sono dati falsi. Se in futuro entra una voce nuova, vale la stessa
-regola: i dati li porta Federico, non si ricostruiscono.
+**I dati li porta Federico, e non si deducono.** Le fonti sono sparse e le tiene
+lui: buste paga, autocertificazioni, attestati. Una data approssimata perché
+serviva riempire un campo su un modulo di selezione è un dato falso, e nel
+database non ci entra. Vale per ogni voce nuova, esattamente come è valso per
+quelle che ci sono già.
 
 ### Come si annotano gli esami
 
@@ -70,6 +65,12 @@ stanno in `sorgenti/` (`Preambolo`, `Intestazione`, `Profilo`, `Lavoro`,
 verità del CV sono i `.tex`.
 
 ## Regole che non si violano
+
+Queste regole valgono **per chi lavora al posto di Federico**, non per Federico.
+Se lui chiede una cosa che va contro una di queste righe, decide lui e si fa
+quello che chiede: un CV di dieci pagine lo può fare quando vuole. Quello che non
+si fa è deciderlo da soli, o zittire una regola per comodità. Se la richiesta
+stride con una di queste, si dice in una riga e poi si esegue.
 
 1. **Mai duplicare un file per creare una variante.** È già successo: due copie di
    `Lavoro.tex` divergute in silenzio, e i due PDF dicevano cose diverse. Se serve
