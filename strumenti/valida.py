@@ -6,7 +6,8 @@ Due livelli di controllo, perche' guardano cose diverse:
     la categoria e' fra quelle ammesse? la data e' scritta gg/mm/aaaa?
   - questo SCRIPT guarda la coerenza, che lo schema non puo' vedere: il 31/02
     ha la forma giusta ma non esiste, la fine non puo' precedere l'inizio, una
-    competenza citata deve esistere nel registro.
+    competenza citata deve esistere nel registro, un percorso su disco deve
+    puntare a qualcosa che c'e' ancora.
 
 Si lancia cosi', da qualsiasi cartella:
 
@@ -21,6 +22,7 @@ non fanno fallire il controllo: segnalano cose da guardare, non errori.
 """
 
 import json
+import re
 import sys
 from datetime import date, datetime
 from pathlib import Path
@@ -61,6 +63,15 @@ def quantifica(numero, singolare, plurale):
 def leggi_json(percorso):
     """Carica un file JSON, spiegando in italiano cosa non va se fallisce."""
     if not percorso.exists():
+        if percorso == DATI:
+            # Caso tipico di chi clona il repo: i dati non ci sono e non e' un
+            # guasto. Senza questa spiegazione sembra un repo rotto.
+            sys.exit(
+                f"File non trovato: {percorso}\n"
+                "  dati/profilo.json non sta in git: contiene codice fiscale, voti,\n"
+                "  RAL e nomi di terzi, e vive solo sul computer di Federico.\n"
+                "  Un clone di questo repo ha lo schema e i controlli, non i dati."
+            )
         sys.exit(f"File non trovato: {percorso}")
     try:
         return json.loads(percorso.read_text(encoding="utf-8"))
@@ -276,6 +287,41 @@ def controlla_competenze(dati, errori, avvisi):
         )
 
 
+def controlla_riferimenti(dati, avvisi):
+    """I percorsi su disco esistono ancora.
+
+    I `riferimenti` sono il campo che fra due anni ti fa ritrovare il lavoro
+    invece di ricordartelo e basta: se la cartella e' stata spostata o
+    rinominata, il rimando e' carta straccia e nessuno se ne accorge. Sono
+    decine, tutti percorsi assoluti di questa macchina.
+
+    E' un avviso e non un errore: il dato resta vero, e' il puntatore a essersi
+    rotto. Su un altro computer si lamenteranno tutti insieme, ed e' giusto
+    cosi': vuol dire che vanno rimappati.
+
+    Si controllano solo i valori che hanno la forma di un percorso Windows
+    ("C:\\..." o "\\\\server\\..."): un certificato online sta nello stesso campo,
+    ma e' un URL e non si guarda sul disco.
+    """
+    def e_percorso(valore):
+        return bool(re.match(r"^([A-Za-z]:[\\/]|\\\\)", valore))
+
+    for voce in dati.get("voci", []):
+        etichetta = f'voce "{voce.get("id", "?")}"'
+        gruppi = [(etichetta, voce.get("riferimenti", []))]
+        for attivita in voce.get("attivita", []):
+            gruppi.append(
+                (f'{etichetta} -> attivita "{attivita.get("titolo", "?")}"',
+                 attivita.get("riferimenti", []))
+            )
+
+        for dove, elenco in gruppi:
+            for riferimento in elenco:
+                valore = riferimento.get("valore", "")
+                if e_percorso(valore) and not Path(valore).exists():
+                    avvisi.append(f'{dove}: il percorso "{valore}" non esiste piu\'')
+
+
 def controlla_rimandi(dati, errori):
     """Un rimando a un'altra voce deve puntare a una voce che esiste davvero.
 
@@ -325,6 +371,7 @@ def main():
     controlla_preferenze(dati, errori, avvisi)
     controlla_identificatori(dati, errori)
     controlla_competenze(dati, errori, avvisi)
+    controlla_riferimenti(dati, avvisi)
     controlla_rimandi(dati, errori)
 
     try:

@@ -42,7 +42,7 @@ python strumenti/valida.py
 CV_Federico_Bena...      il CV: sorgenti, PDF e Word, nelle due versioni
 dati/                    il database (privato) e le regole che deve rispettare
 sorgenti/                i testi del CV, scritti una volta e usati da entrambe le versioni
-strumenti/               i tre comandi: si lanciano, non si aprono
+strumenti/               i due comandi qui sopra, più lo script che fa i Word
 note/                    appunti di lavoro
 ```
 

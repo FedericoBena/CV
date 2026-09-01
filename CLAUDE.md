@@ -21,6 +21,10 @@ file lo controlla: schema e validatore sono la sola rete che ha.
   modifichi, il commit si fa lì dentro — sempre chiedendo prima.
 - **Dopo ogni modifica**, `python strumenti/valida.py` deve uscire senza errori.
   Non serve dopo le modifiche ai `.tex`: il database non entra nella build.
+- **`profilo.schema.json` è tracciato da tutti e due i repo**: da quello pubblico
+  come `dati/profilo.schema.json`, da quello privato dentro `dati/`. È un file
+  solo con due storie. Se lo cambi, il commit va fatto in entrambi, o la copia
+  pubblica resta indietro in silenzio.
 
 Quello che c'è dentro **è la verità**. Le stesure precedenti, dove non sono già
 nel file, sono buttate: erano accrocchi fatti al volo, non si recuperano.
@@ -38,6 +42,31 @@ lui: buste paga, autocertificazioni, attestati. Una data approssimata perché
 serviva riempire un campo su un modulo di selezione è un dato falso, e nel
 database non ci entra. Vale per ogni voce nuova, esattamente come è valso per
 quelle che ci sono già.
+
+### Come si scrive una voce
+
+Convenzioni che il file rispetta ma che lo schema non può imporre. Guardare una
+voce già scritta resta il modo migliore: `dalibot-progettista` per un lavoro,
+`polito-magistrale` per uno studio.
+
+- **Ordine**: le voci stanno raggruppate per categoria — prima gli studi, poi i
+  lavori, poi le certificazioni, poi il resto — e dentro ogni gruppo dalla più
+  recente alla più vecchia, per data di inizio. Una voce nuova si infila al suo
+  posto, non in fondo.
+- **Id**: `ente-ruolo` in minuscolo con i trattini, es. `dalibot-progettista`,
+  `bena-srl-alternanza`. Stabile: non si rinomina e non si riusa.
+- **Luogo**: `Città, Italia`. Senza provincia e senza indirizzo: se l'indirizzo
+  serve (i moduli lo chiedono) va nel `note`.
+- **`usato_in`**: dice in quale documento quel testo è finito davvero.
+  `CV luglio 2026` per quello che è sul CV di oggi, `CV fino al 14/07/2026` per
+  una formulazione sostituita. Elenco vuoto = mai spedita.
+- **`riferimenti`**: percorsi assoluti di questa macchina. `valida.py` controlla
+  che esistano ancora e avvisa se no; gli URL li salta. Se cambi computer o
+  riordini le cartelle, si lamenteranno tutti insieme e vanno rimappati.
+- **Attenzione ai `testi`**: le formulazioni marcate `cv` sono copie di quello che
+  sta nei `.tex`. Nessuno controlla che restino allineate: se riscrivi un bullet
+  nel sorgente, aggiorna anche il testo nella voce, o il database invecchia in
+  silenzio.
 
 ### Come si annotano gli esami
 
