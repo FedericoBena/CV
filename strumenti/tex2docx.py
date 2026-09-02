@@ -150,6 +150,8 @@ def intestazione(path):
 INLINE = re.compile(r"\\(textbf|textit|emph|href)\b|\\LaTeX\{?\}?")
 
 def pulisci(s):
+    # \hspace{0pt} sta dentro una parola per farla spezzare: sparisce senza spazio.
+    s = re.sub(r"\\hspace\{[^}]*\}", "", s)
     s = re.sub(r"\\vspace\{[^}]*\}|\\\\|\\,|\\ ", " ", s)
     s = s.replace(r"\textbar", "|").replace("~", " ")
     s = s.replace("---", "—").replace("--", "–")
