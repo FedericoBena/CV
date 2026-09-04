@@ -3,8 +3,10 @@
 Questa cartella **non è il repo di un CV**: è il database personale di Federico,
 e il CV è il suo primo consumatore. La cosa che conta è `dati/profilo.json` —
 storico completo, collegato e aggiornato, da cui tirare fuori materiale per CV
-adattati alla singola offerta, LinkedIn e moduli dei recruiter. Il contesto
-completo sta in `README.md`, che è scritto per un essere umano: leggilo prima.
+adattati alla singola offerta, LinkedIn e moduli dei recruiter. Accanto c'è un
+secondo database, `contatti/persone.json`: le persone incontrate lungo la strada,
+tenute con le stesse regole. Il contesto completo sta in `README.md`, che è
+scritto per un essere umano: leggilo prima.
 
 ## Il database
 
@@ -19,8 +21,9 @@ file lo controlla: schema e validatore sono la sola rete che ha.
 - **Ha una storia sua**, in un repo git privato dentro `dati/` (locale, senza
   remote): il file più prezioso non poteva essere l'unico senza storia. Quando lo
   modifichi, il commit si fa lì dentro — sempre chiedendo prima.
-- **Dopo ogni modifica**, `python strumenti/valida.py` deve uscire senza errori.
-  Non serve dopo le modifiche ai `.tex`: il database non entra nella build.
+- **Dopo ogni modifica**, `python strumenti/valida_profilo.py` deve uscire senza
+  errori. Non serve dopo le modifiche ai `.tex`: il database non entra nella
+  build.
 - **`profilo.schema.json` è tracciato da tutti e due i repo**: da quello pubblico
   come `dati/profilo.schema.json`, da quello privato dentro `dati/`. È un file
   solo con due storie. Se lo cambi, il commit va fatto in entrambi, o la copia
@@ -60,9 +63,10 @@ voce già scritta resta il modo migliore: `dalibot-progettista` per un lavoro,
 - **`usato_in`**: dice in quale documento quel testo è finito davvero.
   `CV luglio 2026` per quello che è sul CV di oggi, `CV fino al 14/07/2026` per
   una formulazione sostituita. Elenco vuoto = mai spedita.
-- **`riferimenti`**: percorsi assoluti di questa macchina. `valida.py` controlla
-  che esistano ancora e avvisa se no; gli URL li salta. Se cambi computer o
-  riordini le cartelle, si lamenteranno tutti insieme e vanno rimappati.
+- **`riferimenti`**: percorsi assoluti di questa macchina. `valida_profilo.py`
+  controlla che esistano ancora e avvisa se no; gli URL li salta. Se cambi
+  computer o riordini le cartelle, si lamenteranno tutti insieme e vanno
+  rimappati.
 - **Attenzione ai `testi`**: le formulazioni marcate `cv` sono copie di quello che
   sta nei `.tex`. Nessuno controlla che restino allineate: se riscrivi un bullet
   nel sorgente, aggiorna anche il testo nella voce, o il database invecchia in
@@ -78,6 +82,48 @@ sono scritti quegli esami e si fa uguale.
 Il progetto vero sta in `attivita`, agganciato al codice del corso, con le
 `competenze_usate` e i `riferimenti` a dove sta la roba. Una competenza usata in
 un progetto va anche nel `registro_competenze`, se non c'è già.
+
+## Il database dei contatti
+
+`contatti/persone.json`, con accanto `persone.schema.json`. È la stessa cosa di
+`dati/`, con dentro le persone invece dei fatti: chi hai conosciuto, dove lavora,
+e ogni volta che vi siete parlati. Vale tutto quello che vale per il profilo —
+non genera niente, non si committa, ha una storia sua, si controlla dopo ogni
+modifica — con una differenza che pesa più di tutte le altre:
+
+**Quei dati non sono di Federico.** Sono nomi, ruoli, numeri e email di altre
+persone, che non hanno mai acconsentito a stare in un repo pubblico. Il file è
+bloccato da `.gitignore`, e lì deve restare: nel repo pubblico non ci va nemmeno
+un nome. Si tiene il minimo che serve a ricontattare qualcuno, e si scrive solo
+quello che si direbbe in faccia alla persona.
+
+- **Il controllo è `python strumenti/valida_persone.py`**, gemello di
+  `valida_profilo.py`. Le parti in comune fra i due (leggere un file, capire una
+  data, tradurre un errore in italiano) stanno in `strumenti/condiviso.py`: si
+  toccano lì, una volta sola, non copiate in tutti e due.
+- **`persone.schema.json` è tracciato da tutti e due i repo**, come
+  `profilo.schema.json`: se lo cambi, il commit va fatto in entrambi.
+- **Gli avvisi qui sono la parte utile.** Un contatto non si rompe, invecchia: il
+  controllo segnala chi non senti da più di sei mesi, chi non ha nessun recapito,
+  e due schede che condividono un'email — quasi sempre la stessa persona scritta
+  due volte.
+
+### Come si scrive una scheda
+
+- **Id**: `nome-cognome-azienda` per una persona (`mario-rossi-acme`), perché di
+  Mario Rossi ce n'è più di uno; il nome corto per un'azienda (`acme`). Stabile:
+  se cambia lavoro, l'id resta e cambia il campo `azienda`.
+- **L'azienda si cita per id**, e sta scritta per esteso una volta sola nel
+  registro `aziende`. Tre persone in Leonardo non sono tre modi di scrivere
+  Leonardo.
+- **Le interazioni stanno dalla più recente alla più vecchia**, come le voci del
+  profilo. Ognuna dice data, canale e cosa ne è uscito, in una riga: `"Conosciuto
+  al Career Day, gli ho lasciato il CV"`, non `"contatto"`.
+- **Date `gg/mm/aaaa`, luoghi `Città, Italia`**: le stesse convenzioni del
+  profilo, perché è la stessa cartella.
+- **`null` quando non lo sai.** Un ruolo tirato a indovinare è un dato falso
+  esattamente come una data approssimata nel profilo, e qui riguarda qualcun
+  altro.
 
 ## Il CV
 
@@ -115,14 +161,19 @@ stride con una di queste, si dice in una riga e poi si esegue.
    Confronta il testo prima e dopo (`pdftotext -layout`): l'unica differenza deve
    essere quella voluta. "Compila senza errori" non è una verifica — su un CV che
    si spedisce, un blocco che sparisce in silenzio è peggio di un errore.
-4. **Dopo ogni modifica al database, `python strumenti/valida.py`.**
+4. **Dopo ogni modifica a un database, il suo controllo.** `python
+   strumenti/valida_profilo.py` per il profilo, `python strumenti/valida_persone.py` per
+   i contatti.
 5. **Le regole ignore stanno in `.gitignore`, versionato.** Non in
    `.git/info/exclude`: la riga che tiene i dati personali fuori da un repo
    pubblico deve sopravvivere a un clone. Controlla comunque `git status` prima di
    un commit: quella è la riga di confine fra pubblico e privato, e non si sposta.
 6. **Il repo è pubblico, ma non è una scusa per aggiungere dati sensibili nuovi.**
    Email e foto sono condivise di proposito; il telefono è stato tolto dal CV e non
-   va rimesso (nel database sì, quello è fuori da git). Niente documenti di terzi.
+   va rimesso (nel database sì, quello è fuori da git). Niente documenti di terzi,
+   e niente dati di terzi: i contatti stanno in `contatti/persone.json`, che è
+   fuori da git per lo stesso motivo per cui ci sta fuori il profilo — con
+   l'aggravante che quei dati non sono suoi.
 7. **Niente che non regga a un colloquio tecnico.** `Python (basic)` è la verità e
    si difende; "Python, scikit-learn, ML" no. Il CV punta a difesa e aerospace,
    dove il colloquio tecnico smonta le righe gonfiate.

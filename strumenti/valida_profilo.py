@@ -9,10 +9,14 @@ Due livelli di controllo, perche' guardano cose diverse:
     competenza citata deve esistere nel registro, un percorso su disco deve
     puntare a qualcosa che c'e' ancora.
 
+Qui stanno solo i controlli che riguardano il profilo. Il modo di leggere un
+file e di spiegare un errore sta in strumenti/condiviso.py, insieme al gemello
+valida_persone.py.
+
 Si lancia cosi', da qualsiasi cartella:
 
-    python strumenti/valida.py               controlla dati/profilo.json
-    python strumenti/valida.py altro.json    controlla un altro file
+    python strumenti/valida_profilo.py               controlla dati/profilo.json
+    python strumenti/valida_profilo.py altro.json    controlla un altro file
 
 Il secondo modo serve per le prove: si controlla una copia sbagliata apposta
 senza mettere le mani sui dati veri.
@@ -21,25 +25,33 @@ Esce con codice 0 se e' tutto a posto, 1 se c'e' almeno un errore. Gli avvisi
 non fanno fallire il controllo: segnalano cose da guardare, non errori.
 """
 
-import json
-import re
 import sys
-from datetime import date, datetime
+from datetime import date
 from pathlib import Path
 
-try:
-    import jsonschema
-except ImportError:
-    sys.exit(
-        "Manca la libreria jsonschema. Installala con:\n"
-        "    pip install jsonschema"
-    )
+from condiviso import (
+    RADICE,
+    a_data,
+    controlla_identificatori,
+    controlla_schema,
+    etichetta_percorso,
+    leggi_json,
+    prepara_stdout,
+    quantifica,
+    riferimento_rotto,
+    stampa_esito,
+)
 
-# I percorsi si calcolano dalla posizione di questo file, non dalla cartella
-# da cui lo lanci: cosi' funziona anche chiamandolo da altrove.
-RADICE = Path(__file__).resolve().parent.parent
 DATI = RADICE / "dati" / "profilo.json"
 SCHEMA = RADICE / "dati" / "profilo.schema.json"
+
+# Caso tipico di chi clona il repo: i dati non ci sono e non e' un guasto.
+# Senza questa spiegazione sembra un repo rotto.
+MANCA_DATI = (
+    "  dati/profilo.json non sta in git: contiene codice fiscale, voti,\n"
+    "  RAL e nomi di terzi, e vive solo sul computer di Federico.\n"
+    "  Un clone di questo repo ha lo schema e i controlli, non i dati."
+)
 
 # Sezioni che contengono elenchi di elementi con un id: qui si cercano i duplicati.
 SEZIONI_CON_ID = ["link", "sommario", "lingue", "voci", "registro_competenze"]
@@ -53,140 +65,6 @@ NOMI = {
     "link": ("link", "link"),
     "sommario": ("sommario", "sommari"),
 }
-
-
-def quantifica(numero, singolare, plurale):
-    """"1 voce" / "4 voci": i messaggi si leggono, tanto vale scriverli bene."""
-    return f"{numero} {singolare if numero == 1 else plurale}"
-
-
-def leggi_json(percorso):
-    """Carica un file JSON, spiegando in italiano cosa non va se fallisce."""
-    if not percorso.exists():
-        if percorso == DATI:
-            # Caso tipico di chi clona il repo: i dati non ci sono e non e' un
-            # guasto. Senza questa spiegazione sembra un repo rotto.
-            sys.exit(
-                f"File non trovato: {percorso}\n"
-                "  dati/profilo.json non sta in git: contiene codice fiscale, voti,\n"
-                "  RAL e nomi di terzi, e vive solo sul computer di Federico.\n"
-                "  Un clone di questo repo ha lo schema e i controlli, non i dati."
-            )
-        sys.exit(f"File non trovato: {percorso}")
-    try:
-        return json.loads(percorso.read_text(encoding="utf-8"))
-    except json.JSONDecodeError as errore:
-        sys.exit(
-            f"{percorso.name} non e' un JSON valido.\n"
-            f"  riga {errore.lineno}, colonna {errore.colno}: {errore.msg}"
-        )
-
-
-def a_data(testo):
-    """Converte 'gg/mm/aaaa' in una data vera, o restituisce None se non esiste.
-
-    Serve a bocciare il 31/02: ha la forma giusta e lo schema lo accetta, ma
-    quel giorno non e' mai esistito.
-    """
-    try:
-        return datetime.strptime(testo, "%d/%m/%Y").date()
-    except (ValueError, TypeError):
-        return None
-
-
-def descrivi(percorso, dati):
-    """Trasforma il percorso interno di un errore in qualcosa di leggibile.
-
-    Da deque(['voci', 0, 'categoria']) a: voce "sensor-reply-tesi" -> categoria
-    """
-    parti = list(percorso)
-    if not parti:
-        return "il file"
-
-    sezione = parti[0]
-    if len(parti) >= 2 and isinstance(parti[1], int):
-        elemento = dati.get(sezione, [])[parti[1]] if isinstance(dati.get(sezione), list) else {}
-        etichetta = elemento.get("id") if isinstance(elemento, dict) else None
-        nome = NOMI.get(sezione, (sezione, sezione))[0]
-        testa = f'{nome} "{etichetta}"' if etichetta else f"{sezione}[{parti[1]}]"
-        coda = ".".join(str(p) for p in parti[2:])
-        return f"{testa} -> {coda}" if coda else testa
-
-    return ".".join(str(p) for p in parti)
-
-
-def descrivi_forma(schema):
-    """Dice a parole che forma accetta un pezzo di schema.
-
-    Serve per i campi che ammettono piu' forme (un voto e' un numero da 18 a 30
-    *oppure* la parola "superato"): senza questo il messaggio d'errore ne
-    elencherebbe una sola, facendo credere che l'altra sia vietata.
-    """
-    if "enum" in schema:
-        return " o ".join(f'"{v}"' for v in schema["enum"])
-    if "$ref" in schema:
-        return str(schema["$ref"]).rsplit("/", 1)[-1]
-
-    tipo = schema.get("type")
-    if tipo == "null":
-        return "null"
-    if tipo in ("integer", "number"):
-        minimo, massimo = schema.get("minimum"), schema.get("maximum")
-        if minimo is not None and massimo is not None:
-            return f"un numero da {minimo} a {massimo}"
-        return "un numero"
-    if tipo == "string":
-        return "un testo"
-    if tipo == "array":
-        return "un elenco"
-    if tipo == "object":
-        return "un blocco di campi"
-    return "un altro valore"
-
-
-def traduci(errore):
-    """Rende il messaggio di jsonschema comprensibile a chi non lo conosce."""
-    tipo = errore.validator
-    if tipo == "anyOf":
-        forme = " oppure ".join(descrivi_forma(s) for s in errore.validator_value)
-        return f"valore {errore.instance!r} non ammesso: qui ci va {forme}"
-    if tipo == "required":
-        # Il messaggio originale e': "'fine' is a required property"
-        campo = str(errore.message).split("'")[1]
-        return f'manca il campo obbligatorio "{campo}"'
-    if tipo == "additionalProperties":
-        # Il messaggio originale e': "Additional properties are not allowed
-        # ('azienda' was unexpected)"
-        intrusi = ", ".join(f'"{p}"' for p in str(errore.message).split("'")[1::2])
-        return f"campo non previsto dallo schema: {intrusi}"
-    if tipo == "enum":
-        ammessi = ", ".join(f'"{v}"' for v in errore.validator_value)
-        return f'valore "{errore.instance}" non ammesso: i valori validi sono {ammessi}'
-    if tipo == "pattern":
-        return f'"{errore.instance}" non ha la forma richiesta'
-    if tipo == "type":
-        return f"tipo di dato sbagliato (atteso {errore.validator_value})"
-    if tipo == "minLength":
-        return "il campo non puo' essere vuoto"
-    if tipo == "minimum":
-        return f"il valore {errore.instance} e' minore del minimo ammesso ({errore.validator_value})"
-    if tipo == "uniqueItems":
-        return "ci sono elementi ripetuti nell'elenco"
-    return errore.message
-
-
-def controlla_schema(dati, schema, errori):
-    """Primo livello: la forma. Raccoglie tutti gli errori, non solo il primo."""
-    validatore = jsonschema.Draft202012Validator(schema)
-    for errore in sorted(validatore.iter_errors(dati), key=lambda e: list(e.absolute_path)):
-        # Per if/then jsonschema produce un errore generico piu' un elenco di
-        # errori interni: quello preciso e' fra questi ultimi. Per anyOf invece
-        # no: li' l'errore generico e' quello giusto, perche' le alternative
-        # vanno elencate tutte e non sostituite con una sola.
-        dettaglio = errore
-        if errore.context and errore.validator != "anyOf":
-            dettaglio = jsonschema.exceptions.best_match(errore.context) or errore
-        errori.append(f"{descrivi(errore.absolute_path, dati)}: {traduci(dettaglio)}")
 
 
 def controlla_date(dati, errori):
@@ -244,17 +122,6 @@ def controlla_preferenze(dati, errori, avvisi):
         )
 
 
-def controlla_identificatori(dati, errori):
-    """Gli id sono unici dentro la loro sezione: sono l'aggancio di tutto."""
-    for sezione in SEZIONI_CON_ID:
-        visti = set()
-        for elemento in dati.get(sezione, []):
-            identificatore = elemento.get("id")
-            if identificatore in visti:
-                errori.append(f'{sezione}: id "{identificatore}" usato piu\' di una volta')
-            visti.add(identificatore)
-
-
 def controlla_competenze(dati, errori, avvisi):
     """Ogni competenza citata deve esistere nel registro.
 
@@ -298,14 +165,7 @@ def controlla_riferimenti(dati, avvisi):
     E' un avviso e non un errore: il dato resta vero, e' il puntatore a essersi
     rotto. Su un altro computer si lamenteranno tutti insieme, ed e' giusto
     cosi': vuol dire che vanno rimappati.
-
-    Si controllano solo i valori che hanno la forma di un percorso Windows
-    ("C:\\..." o "\\\\server\\..."): un certificato online sta nello stesso campo,
-    ma e' un URL e non si guarda sul disco.
     """
-    def e_percorso(valore):
-        return bool(re.match(r"^([A-Za-z]:[\\/]|\\\\)", valore))
-
     for voce in dati.get("voci", []):
         etichetta = f'voce "{voce.get("id", "?")}"'
         gruppi = [(etichetta, voce.get("riferimenti", []))]
@@ -318,7 +178,7 @@ def controlla_riferimenti(dati, avvisi):
         for dove, elenco in gruppi:
             for riferimento in elenco:
                 valore = riferimento.get("valore", "")
-                if e_percorso(valore) and not Path(valore).exists():
+                if riferimento_rotto(valore):
                     avvisi.append(f'{dove}: il percorso "{valore}" non esiste piu\'')
 
 
@@ -356,52 +216,27 @@ def controlla_rimandi(dati, errori):
 
 
 def main():
-    try:
-        sys.stdout.reconfigure(encoding="utf-8")
-    except (AttributeError, ValueError):
-        pass
+    prepara_stdout()
 
     percorso = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else DATI
-    dati = leggi_json(percorso)
+    dati = leggi_json(percorso, MANCA_DATI if percorso == DATI else None)
     schema = leggi_json(SCHEMA)
 
     errori, avvisi = [], []
-    controlla_schema(dati, schema, errori)
+    controlla_schema(dati, schema, errori, NOMI)
     controlla_date(dati, errori)
     controlla_preferenze(dati, errori, avvisi)
-    controlla_identificatori(dati, errori)
+    controlla_identificatori(dati, SEZIONI_CON_ID, errori)
     controlla_competenze(dati, errori, avvisi)
     controlla_riferimenti(dati, avvisi)
     controlla_rimandi(dati, errori)
-
-    try:
-        etichetta = percorso.relative_to(RADICE)
-    except ValueError:
-        etichetta = percorso
-    print(f"Controllo di {etichetta}\n")
-
-    for messaggio in errori:
-        print(f"ERRORE  {messaggio}")
-    for messaggio in avvisi:
-        print(f"AVVISO  {messaggio}")
 
     conteggi = ", ".join(
         quantifica(len(dati.get(sezione, [])), *NOMI[sezione])
         for sezione in ["voci", "registro_competenze", "lingue", "link"]
     )
 
-    if errori:
-        print(
-            f"\n{quantifica(len(errori), 'errore', 'errori')}, "
-            f"{quantifica(len(avvisi), 'avviso', 'avvisi')}. Contenuto: {conteggi}."
-        )
-        return 1
-
-    print(
-        f"Nessun errore, {quantifica(len(avvisi), 'avviso', 'avvisi')}. "
-        f"Contenuto: {conteggi}."
-    )
-    return 0
+    return stampa_esito(etichetta_percorso(percorso), errori, avvisi, conteggi)
 
 
 if __name__ == "__main__":

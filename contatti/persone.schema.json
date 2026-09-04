@@ -1,0 +1,165 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/FedericoBena/CV/contatti/persone.schema.json",
+  "title": "Database dei contatti di Federico Bena",
+  "description": "Le regole che i contatti devono rispettare. Questo file NON contiene dati: contiene la forma che devono avere. Lo applicano VS Code mentre scrivi e strumenti/valida_persone.py quando lo lanci. Stessa forma e stesse convenzioni di dati/profilo.schema.json: id minuscoli con i trattini, date gg/mm/aaaa, ogni campo obbligatorio e null quando non c'è.",
+
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["aziende", "persone"],
+
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Rimando a questo file. Serve a VS Code per controllare mentre scrivi."
+    },
+
+    "aziende": {
+      "type": "array",
+      "description": "Le organizzazioni, scritte una volta sola. Le persone le richiamano per id: così tre persone della stessa azienda non diventano tre versioni diverse dello stesso nome. Stessa idea del registro_competenze nel profilo.",
+      "items": { "$ref": "#/$defs/azienda" }
+    },
+
+    "persone": {
+      "type": "array",
+      "description": "Le persone. Una scheda per persona, con dentro lo storico di quando ci hai parlato.",
+      "items": { "$ref": "#/$defs/persona" }
+    }
+  },
+
+  "$defs": {
+    "data": {
+      "type": "string",
+      "description": "Data completa gg/mm/aaaa. La forma la controlla questo schema; che il giorno esista davvero lo controlla valida_persone.py.",
+      "pattern": "^(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[0-2])/(19|20)[0-9]{2}$"
+    },
+
+    "identificatore": {
+      "type": "string",
+      "description": "Minuscolo, cifre e trattini. Stabile: non si rinomina e non si riusa. Per una persona è nome-cognome-azienda (\"mario-rossi-acme\"), perché di Mario Rossi ce n'è più di uno; per un'azienda è il nome corto (\"acme\").",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+
+    "url": {
+      "type": "string",
+      "pattern": "^https?://",
+      "description": "Indirizzo completo, con http:// o https://."
+    },
+
+    "riferimenti": {
+      "type": "array",
+      "description": "Dove sta la roba legata a questa persona: la candidatura inviata, l'annuncio, il biglietto da visita scansionato, lo scambio di email salvato. È il campo che fra un anno ti fa ritrovare il contesto invece di ricordartelo e basta. Può essere vuoto.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["tipo", "valore"],
+        "properties": {
+          "tipo": { "enum": ["cartella", "documento", "annuncio", "candidatura", "url", "altro"] },
+          "valore": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+
+    "azienda": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "nome", "settore", "luogo", "linkedin", "note"],
+      "properties": {
+        "id": { "$ref": "#/$defs/identificatore" },
+        "nome": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Ragione sociale come si scrive per esteso: \"Leonardo S.p.A.\", non \"leonardo\"."
+        },
+        "settore": {
+          "anyOf": [{ "type": "string", "minLength": 1 }, { "type": "null" }],
+          "description": "In che campo lavora: \"Aerospace e difesa\", \"Automotive\". null se non lo sai ancora: meglio vuoto che inventato."
+        },
+        "luogo": {
+          "anyOf": [{ "type": "string", "minLength": 1 }, { "type": "null" }],
+          "description": "Sede di riferimento, nella forma \"Città, Italia\". Quella che conta per te, non per forza la sede legale. null se non la sai."
+        },
+        "linkedin": {
+          "anyOf": [{ "$ref": "#/$defs/url" }, { "type": "null" }],
+          "description": "Pagina LinkedIn dell'azienda. null se non ce l'ha o non l'hai trovata."
+        },
+        "note": {
+          "type": ["string", "null"],
+          "description": "Quello che ti serve sapere su questa azienda: cosa fa davvero, se assume, chi te ne ha parlato. null se non serve."
+        }
+      }
+    },
+
+    "persona": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id", "nome", "cognome", "ruolo", "azienda",
+        "email", "telefono", "linkedin",
+        "interazioni", "note", "riferimenti"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/identificatore" },
+        "nome": { "type": "string", "minLength": 1 },
+        "cognome": { "type": "string", "minLength": 1 },
+        "ruolo": {
+          "anyOf": [{ "type": "string", "minLength": 1 }, { "type": "null" }],
+          "description": "Che lavoro fa lì dentro: \"Responsabile selezione\", \"Team leader controlli\". Cambia come le scrivi, quindi vale la pena scriverlo. null se non lo sai.",
+          "examples": ["Responsabile selezione", "Recruiter", "Team leader"]
+        },
+        "azienda": {
+          "anyOf": [{ "$ref": "#/$defs/identificatore" }, { "type": "null" }],
+          "description": "Id di una voce di \"aziende\", non il nome per esteso. valida_persone.py controlla che quell'id esista davvero. null se la persona non è legata a nessuna azienda (un professore, un conoscente)."
+        },
+        "email": {
+          "anyOf": [
+            { "type": "string", "pattern": "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$" },
+            { "type": "null" }
+          ]
+        },
+        "telefono": {
+          "description": "Con prefisso internazionale, come nel profilo. null se non ce l'hai.",
+          "anyOf": [
+            { "type": "string", "pattern": "^\\+[0-9]{1,3}[0-9 ]{6,}$" },
+            { "type": "null" }
+          ]
+        },
+        "linkedin": {
+          "anyOf": [{ "$ref": "#/$defs/url" }, { "type": "null" }],
+          "description": "Profilo personale su LinkedIn. null se non ce l'ha o non l'hai trovato."
+        },
+        "interazioni": {
+          "type": "array",
+          "description": "Ogni volta che vi siete parlati, dalla più recente alla più vecchia. Un contatto è un rapporto che va avanti nel tempo, non una data sola: se tieni solo l'ultima, il secondo messaggio cancella il primo. Elenco vuoto = scheda pronta ma non gli hai ancora parlato.",
+          "items": { "$ref": "#/$defs/interazione" }
+        },
+        "note": {
+          "type": ["string", "null"],
+          "description": "Quello che ti serve ricordare di questa persona e che non sta negli altri campi. null se non serve."
+        },
+        "riferimenti": { "$ref": "#/$defs/riferimenti" }
+      }
+    },
+
+    "interazione": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["data", "canale", "cosa"],
+      "properties": {
+        "data": { "$ref": "#/$defs/data" },
+        "canale": {
+          "enum": [
+            "di persona", "fiera", "colloquio", "telefono", "videochiamata",
+            "email", "linkedin", "messaggio", "altro"
+          ],
+          "description": "Come vi siete parlati. Elenco chiuso: si allunga qui quando serve davvero."
+        },
+        "cosa": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Una riga: cosa vi siete detti e cosa ne è uscito. \"Conosciuto al Career Day, gli ho lasciato il CV\", non \"contatto\"."
+        }
+      }
+    }
+  }
+}

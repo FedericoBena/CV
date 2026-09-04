@@ -14,12 +14,28 @@ dati/profilo.json
 # sottomodulo.
 dati/.git/
 
+# --- Database dei contatti ---------------------------------------------------
+# contatti/persone.json non e' roba di Federico: sono nomi, ruoli, numeri e email
+# di altre persone, che non hanno acconsentito a finire in un repo pubblico. Fuori
+# dalla storia pubblica, sempre e senza eccezioni. Lo schema invece resta dentro:
+# e' la forma, non i dati.
+contatti/persone.json
+
+# Anche i contatti hanno una storia git privata dentro la loro cartella.
+contatti/.git/
+
 # --- Prodotti derivati -------------------------------------------------------
 # PDF e DOCX si rigenerano con strumenti/build.ps1, non si versionano. Restano
 # sul disco, sincronizzati da Drive. La regola blocca anche i documenti di terzi
 # (moduli, elaborati), che non vanno committati.
 *.pdf
 *.docx
+
+# --- Ausiliari Python --------------------------------------------------------
+# Da quando i due controlli si dividono strumenti/condiviso.py, Python compila e
+# tiene in cache il modulo importato. E' roba sua, si rigenera.
+__pycache__/
+*.pyc
 
 # --- Ausiliari LaTeX ---------------------------------------------------------
 *.aux
