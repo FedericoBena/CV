@@ -86,8 +86,8 @@ un progetto va anche nel `registro_competenze`, se non c'è già.
 ## Il database dei contatti
 
 `contatti/persone.json`, con accanto `persone.schema.json`. È la stessa cosa di
-`dati/`, con dentro le persone invece dei fatti: chi hai conosciuto, dove lavora,
-e ogni volta che vi siete parlati. Vale tutto quello che vale per il profilo —
+`dati/`, con dentro le persone invece dei fatti: chi hai conosciuto, come lo
+raggiungi, e dove lavorava quando vi siete sentiti. Vale tutto quello che vale per il profilo —
 non genera niente, non si committa, ha una storia sua, si controlla dopo ogni
 modifica — con una differenza che pesa più di tutte le altre:
 
@@ -110,15 +110,16 @@ quello che si direbbe in faccia alla persona.
 
 ### Come si scrive una scheda
 
-- **Id**: `nome-cognome-azienda` per una persona (`mario-rossi-acme`), perché di
-  Mario Rossi ce n'è più di uno; il nome corto per un'azienda (`acme`). Stabile:
-  se cambia lavoro, l'id resta e cambia il campo `azienda`.
+- **Id**: `nome-cognome` per una persona (`mario-rossi`), il nome corto per
+  un'azienda (`banco-bpm`). L'id dice chi è, non dove lavora: se cambia lavoro
+  resta lo stesso e cambia l'esperienza. Stabile: non si rinomina e non si riusa.
 - **L'azienda si cita per id**, e sta scritta per esteso una volta sola nel
   registro `aziende`. Tre persone in Leonardo non sono tre modi di scrivere
   Leonardo.
-- **Le interazioni stanno dalla più recente alla più vecchia**, come le voci del
-  profilo. Ognuna dice data, canale e cosa ne è uscito, in una riga: `"Conosciuto
-  al Career Day, gli ho lasciato il CV"`, non `"contatto"`.
+- **Le esperienze stanno dalla più recente alla più vecchia**, come le voci del
+  profilo. Ognuna dice azienda, ruolo, `data_contatto` — l'ultima volta che vi
+  siete sentiti mentre era lì — e la sede dove lavora lei, che non è per forza
+  quella dell'azienda: Banco BPM sta a Milano, Valentina a Ivrea.
 - **Date `gg/mm/aaaa`, luoghi `Città, Italia`**: le stesse convenzioni del
   profilo, perché è la stessa cartella.
 - **`null` quando non lo sai.** Un ruolo tirato a indovinare è un dato falso

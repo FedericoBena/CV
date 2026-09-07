@@ -35,7 +35,6 @@ from condiviso import (
     leggi_json,
     prepara_stdout,
     quantifica,
-    riferimento_rotto,
     stampa_esito,
 )
 
@@ -69,31 +68,31 @@ def nome_completo(persona):
 
 
 def controlla_date(dati, errori, avvisi):
-    """Le date delle interazioni esistono, non sono nel futuro, sono in ordine."""
+    """Le date di contatto esistono, non sono nel futuro, sono in ordine."""
     oggi = date.today()
 
     for persona in dati.get("persone", []):
         etichetta = f'persona "{persona.get("id", "?")}"'
-        interazioni = persona.get("interazioni", [])
         quando = []
 
-        for interazione in interazioni:
-            testo = interazione.get("data")
+        for esperienza in persona.get("esperienze", []):
+            testo = esperienza.get("data_contatto")
+            if testo is None:
+                continue
             giorno = a_data(testo)
-            if testo and giorno is None:
+            if giorno is None:
                 errori.append(f'{etichetta}: la data "{testo}" non esiste')
                 continue
-            if giorno and giorno > oggi:
-                errori.append(f"{etichetta}: l'interazione del {testo} e' nel futuro")
+            if giorno > oggi:
+                errori.append(f"{etichetta}: il contatto del {testo} e' nel futuro")
             quando.append(giorno)
 
-        # Le interazioni stanno dalla piu' recente alla piu' vecchia, come le
+        # Le esperienze stanno dalla piu' recente alla piu' vecchia, come le
         # voci del profilo. Non e' un errore nei dati, ma un elenco mezzo
         # ordinato smette di dirti a colpo d'occhio a che punto sei.
-        ordinate = [g for g in quando if g is not None]
-        if ordinate != sorted(ordinate, reverse=True):
+        if quando != sorted(quando, reverse=True):
             avvisi.append(
-                f"{etichetta}: le interazioni non sono in ordine, "
+                f"{etichetta}: le esperienze non sono in ordine, "
                 "dalla piu' recente alla piu' vecchia"
             )
 
@@ -102,22 +101,23 @@ def controlla_aziende(dati, errori, avvisi):
     """Ogni azienda citata da una persona deve esistere nel registro.
 
     Stessa idea delle competenze nel profilo: il nome dell'azienda e' scritto in
-    un punto solo, e le persone lo richiamano. Se il rimando non aggancia
+    un punto solo, e le esperienze lo richiamano. Se il rimando non aggancia
     niente, il campo dice un id e non un'azienda.
     """
     registro = {a.get("id") for a in dati.get("aziende", [])}
     citate = set()
 
     for persona in dati.get("persone", []):
-        identificatore = persona.get("azienda")
-        if identificatore is None:
-            continue
-        citate.add(identificatore)
-        if identificatore not in registro:
-            errori.append(
-                f'persona "{persona.get("id", "?")}": '
-                f'azienda "{identificatore}" non presente nel registro'
-            )
+        for esperienza in persona.get("esperienze", []):
+            identificatore = esperienza.get("azienda_id")
+            if identificatore is None:
+                continue
+            citate.add(identificatore)
+            if identificatore not in registro:
+                errori.append(
+                    f'persona "{persona.get("id", "?")}": '
+                    f'azienda "{identificatore}" non presente nel registro'
+                )
 
     for identificatore in sorted(registro - citate):
         avvisi.append(
@@ -203,13 +203,13 @@ def controlla_freschezza(dati, avvisi):
     for persona in dati.get("persone", []):
         etichetta = f'persona "{persona.get("id", "?")}" ({nome_completo(persona)})'
         giorni_noti = [
-            g for g in (a_data(i.get("data")) for i in persona.get("interazioni", []))
+            g
+            for g in (a_data(e.get("data_contatto")) for e in persona.get("esperienze", []))
             if g is not None and g <= oggi
         ]
 
         if not giorni_noti:
-            if not persona.get("interazioni"):
-                avvisi.append(f"{etichetta}: nessuna interazione, non ci hai mai parlato")
+            avvisi.append(f"{etichetta}: nessuna data di contatto, non ci hai mai parlato")
             continue
 
         ultima = max(giorni_noti)
@@ -219,20 +219,6 @@ def controlla_freschezza(dati, avvisi):
                 f"{etichetta}: sentito l'ultima volta il {ultima.strftime('%d/%m/%Y')} "
                 f"({giorni} giorni fa)"
             )
-
-
-def controlla_riferimenti(dati, avvisi):
-    """I percorsi su disco esistono ancora.
-
-    Come nel profilo: e' un avviso e non un errore, perche' il dato resta vero
-    ed e' il puntatore a essersi rotto.
-    """
-    for persona in dati.get("persone", []):
-        etichetta = f'persona "{persona.get("id", "?")}"'
-        for riferimento in persona.get("riferimenti", []):
-            valore = riferimento.get("valore", "")
-            if riferimento_rotto(valore):
-                avvisi.append(f'{etichetta}: il percorso "{valore}" non esiste piu\'')
 
 
 def main():
@@ -251,13 +237,12 @@ def main():
     controlla_doppioni(dati, avvisi)
     controlla_linkedin(dati, avvisi)
     controlla_freschezza(dati, avvisi)
-    controlla_riferimenti(dati, avvisi)
 
-    interazioni = sum(len(p.get("interazioni", [])) for p in dati.get("persone", []))
+    esperienze = sum(len(p.get("esperienze", [])) for p in dati.get("persone", []))
     conteggi = ", ".join([
         quantifica(len(dati.get("persone", [])), *NOMI["persone"]),
         quantifica(len(dati.get("aziende", [])), *NOMI["aziende"]),
-        quantifica(interazioni, "interazione", "interazioni"),
+        quantifica(esperienze, "esperienza", "esperienze"),
     ])
 
     return stampa_esito(etichetta_percorso(percorso), errori, avvisi, conteggi)
