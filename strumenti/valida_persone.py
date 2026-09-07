@@ -97,6 +97,29 @@ def controlla_date(dati, errori, avvisi):
             )
 
 
+def controlla_ordine(dati, avvisi):
+    """Le schede stanno in ordine alfabetico: le persone per cognome, le aziende
+    per nome.
+
+    Una rubrica si legge cercando un nome con l'occhio, non con il find: appena
+    l'ordine si rompe si smette di fidarsi, e le aggiunte finiscono tutte in
+    fondo. Come per le esperienze fuori ordine, e' un avviso: il dato resta
+    vero, e' la rubrica che diventa scomoda.
+    """
+    persone = [
+        (p.get("cognome", "").casefold(), p.get("nome", "").casefold())
+        for p in dati.get("persone", [])
+    ]
+    if persone != sorted(persone):
+        avvisi.append(
+            "le persone non sono in ordine alfabetico per cognome"
+        )
+
+    aziende = [a.get("nome", "").casefold() for a in dati.get("aziende", [])]
+    if aziende != sorted(aziende):
+        avvisi.append("le aziende non sono in ordine alfabetico per nome")
+
+
 def controlla_aziende(dati, errori, avvisi):
     """Ogni azienda citata da una persona deve esistere nel registro.
 
@@ -232,6 +255,7 @@ def main():
     controlla_schema(dati, schema, errori, NOMI)
     controlla_identificatori(dati, SEZIONI_CON_ID, errori)
     controlla_date(dati, errori, avvisi)
+    controlla_ordine(dati, avvisi)
     controlla_aziende(dati, errori, avvisi)
     controlla_recapiti(dati, avvisi)
     controlla_doppioni(dati, avvisi)

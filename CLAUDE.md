@@ -116,6 +116,10 @@ quello che si direbbe in faccia alla persona.
 - **L'azienda si cita per id**, e sta scritta per esteso una volta sola nel
   registro `aziende`. Tre persone in Leonardo non sono tre modi di scrivere
   Leonardo.
+- **Le schede stanno in ordine alfabetico**: le persone per cognome, le aziende
+  per nome. Al contrario del profilo, dove le voci vanno dalla più recente alla
+  più vecchia: qui non c'è una storia da seguire, c'è un nome da cercare con
+  l'occhio. Una scheda nuova si infila al suo posto, non in fondo.
 - **Le esperienze stanno dalla più recente alla più vecchia**, come le voci del
   profilo. Ognuna dice azienda, ruolo, `data_contatto` — l'ultima volta che vi
   siete sentiti mentre era lì — e la sede dove lavora lei, che non è per forza
