@@ -60,6 +60,7 @@ contatti/                le persone (privato) e le regole che devono rispettare
 sorgenti/                i testi del CV, scritti una volta e usati da entrambe le versioni
 strumenti/               i tre comandi qui sopra, più lo script che fa i Word
 note/                    appunti di lavoro
+temporanei/              file di passaggio, fuori da git: si buttano senza pensarci
 ```
 
 Dettagli tecnici, vincoli e regole per lavorarci: `CLAUDE.md`.

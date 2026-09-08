@@ -24,6 +24,13 @@ contatti/persone.json
 # Anche i contatti hanno una storia git privata dentro la loro cartella.
 contatti/.git/
 
+# --- File di passaggio -------------------------------------------------------
+# temporanei/ e' il posto dove appoggiare la roba che non deve finire nella
+# storia: un foglio di calcolo tenuto aperto per una settimana, un allegato
+# scaricato da un'offerta, un appunto usa e getta. Ignorata tutta, cosi' non
+# serve aggiungere una riga qui ogni volta.
+temporanei/
+
 # --- Prodotti derivati -------------------------------------------------------
 # PDF e DOCX si rigenerano con strumenti/build.ps1, non si versionano. Restano
 # sul disco, sincronizzati da Drive. La regola blocca anche i documenti di terzi
