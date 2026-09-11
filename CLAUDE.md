@@ -144,6 +144,23 @@ stanno in `sorgenti/` (`Preambolo`, `Intestazione`, `Profilo`, `Lavoro`,
 `Educazione`, `Competenze`, `Lingue`, `GDPR`), inclusi da entrambi i main. La
 fonte della verità del CV sono i `.tex`.
 
+### L'archivio delle versioni
+
+`archivio/` tiene una copia di ogni versione del CV, pronta da rimandare quando
+torna utile. È fuori da git e si riempie a mano, non da `build.ps1`.
+
+Quando un CV adattato a una posizione è finito — Federico ha detto che va bene e
+`build.ps1` è passato — se ne salva una copia:
+
+- **Il file è quello con la foto**, `CV_Federico_Bena_photo.pdf`, copiato come
+  `archivio/<taglio>/CV_Federico_Bena.pdf`: il nome che va ai recruiter.
+- **La cartella dice il taglio del CV**, non l'azienda né la data:
+  `fotonica-e-controlli`, non `oris-settembre-2026`. Minuscolo, con i trattini,
+  come gli id. Il CV generale sta in `standard`.
+- **Il quando e il per chi stanno nel database**, nell'`usato_in` delle voci.
+- **Se la cartella esiste già, si chiede** prima di sovrascriverla: due
+  candidature con lo stesso taglio possono aver avuto CV diversi.
+
 ## Regole che non si violano
 
 Queste regole valgono **per chi lavora al posto di Federico**, non per Federico.

@@ -35,6 +35,11 @@ powershell -File strumenti/build.ps1
 Controlla da sé che non sia sparito niente e che stia in una pagina. Se si ferma
 con un errore, è perché qualcosa non torna: non aggirarlo.
 
+**Ho fatto un CV nuovo** → ne salvo a mano una copia in `archivio/`, in una
+cartella che dice che versione è, così la
+ritrovo pronta quando serve. Il nome dice il taglio del CV; quando l'ho usato
+sta nel database.
+
 **Ho cambiato qualcosa nel database** → un comando controlla che sia tutto in
 ordine (date che esistono, niente doppioni, niente rimandi rotti):
 
@@ -61,6 +66,7 @@ sorgenti/                i testi del CV, scritti una volta e usati da entrambe l
 strumenti/               i tre comandi qui sopra, più lo script che fa i Word
 note/                    appunti di lavoro
 temporanei/              file di passaggio, fuori da git: si buttano senza pensarci
+archivio/                le versioni del CV, una cartella per taglio, fuori da git
 ```
 
 Dettagli tecnici, vincoli e regole per lavorarci: `CLAUDE.md`.

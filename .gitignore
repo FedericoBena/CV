@@ -31,6 +31,14 @@ contatti/.git/
 # serve aggiungere una riga qui ogni volta.
 temporanei/
 
+# --- Archivio dei CV ---------------------------------------------------------
+# archivio/ tiene una copia di ogni versione del CV, salvata a mano in una
+# cartella che dice che taglio e' (standard, fotonica-e-controlli): serve ad
+# averla pronta quando torna utile. I PDF sarebbero gia' fuori per la regola
+# *.pdf qui sotto; la cartella si ignora intera perche' tutto quello che ci
+# finisce e' storia personale, non codice.
+archivio/
+
 # --- Prodotti derivati -------------------------------------------------------
 # PDF e DOCX si rigenerano con strumenti/build.ps1, non si versionano. Restano
 # sul disco, sincronizzati da Drive. La regola blocca anche i documenti di terzi
